@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .hero {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(to right, #007bff, #6610f2);
+            color: white;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+        .features {
+            padding: 50px 15px;
+        }
+        .features .icon {
+            font-size: 3rem;
+            color: #007bff;
+        }
+        .about {
+            padding: 50px 15px;
+            background-color: #f1f1f1;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-tasks"></i> Task Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                </ul>
+                <div>
+                    <a href="login.php" class="btn btn-outline-primary me-2">Login</a>
+                    <a href="registo.php" class="btn btn-primary">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div>
+            <h1>Organize Your Tasks Efficiently</h1>
+            <p>Manage your projects and tasks with ease. Stay productive and achieve your goals.</p>
+            <a href="registo.php" class="btn btn-light btn-lg mt-3">Get Started</a>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section id="features" class="features text-center">
+        <div class="container">
+            <h2 class="mb-4">Features</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="icon mb-3"><i class="fas fa-calendar-check"></i></div>
+                    <h5>Task Scheduling</h5>
+                    <p>Plan and schedule your tasks to stay on top of your deadlines.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="icon mb-3"><i class="fas fa-users"></i></div>
+                    <h5>Team Collaboration</h5>
+                    <p>Work with your team seamlessly and track progress in real-time.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="icon mb-3"><i class="fas fa-chart-line"></i></div>
+                    <h5>Progress Tracking</h5>
+                    <p>Monitor your progress and achieve your goals efficiently.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about text-center">
+        <div class="container">
+            <h2 class="mb-4">About Us</h2>
+            <p>Task Manager is a modern solution for managing your tasks and projects. Whether you're an individual or a team, our platform helps you stay organized and productive.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2023 Task Manager. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
