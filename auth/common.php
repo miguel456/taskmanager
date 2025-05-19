@@ -9,25 +9,11 @@
  */
 function user_exists(string $email, PDO $conn): bool
 {
-    // Resumo do código:
-    /*
-     * Função adicional para evitar repetição do código;
-     * Consulta SQL para procurar utilizadores através do e-mail fornecido;
-     * Utiliza a ligação PDO fornecida também;
-     * Caso o array de resultados (pelo modo do PDO FETCH_ASSOC) não esteja vazio (ou seja, temos resultados, temos utilizador),
-     * retornamos TRUE (daí a inversão da lógica com o ponto de exclamação).
-     * Utilizamos parâmetros anónimos pela simplicidade; não precisamos escrever cada parâmetro individual e o seu valor ao executar a query.
-     * O downside disto é que temos de nos assegurar que os dados passados ao execute() estão TODOS em ORDEM conforme os "?",
-     * ou arriscamos inserir dados na coluna errada.
-     */
+
     $stmt = $conn->prepare('SELECT * FROM user WHERE email = ?');
     $stmt->execute([$email]);
 
-    // Cada vez que quisermos verificar que um utilizador existe, podemos fazê-lo chamando esta função com o email pretendido e a instância do PDO.
-    // Não utilizamos os resultados neste contexto, então é seguro descartá-los, apenas verificando se tem lá dados ou não.
     return !empty($stmt->fetch(PDO::FETCH_ASSOC));
-    // !false = true
-    // !true = false
 }
 
 function get_user(string $email, PDO $pdo): array
@@ -42,10 +28,6 @@ function get_user(string $email, PDO $pdo): array
     return [];
 }
 
-// O símbolo "&" no parâmetro $errors simplesmente passa a variável por referência em vez de ser por valor,
-// permitindo que façamos alterações facilmente à variável sem ter de a retornar.
-// Ou seja, passamos a posição de memória dessa variável em vez de passar uma cópia da mesma que mais cedo ou mais tarde
-// teria de ser retornada, simplificando a implementação da lógica dos erros.
 /**
  * Ativa uma conta, definindo o parâmetro estado para 1.
  * @param string $email
@@ -68,8 +50,7 @@ function activate_user(string $email, PDO $pdo, array &$errors): bool
     } catch (PDOException $exception) {
         $errors[] = 'Não foi possível ativar a sua conta: Erro ' . $exception->getCode() . '.';
     }
-    // Apenas retornamos True se a alteração for bem sucedida; se apanharmos uma Exceção do PDO, retornamos false
-    // e inserimos um erro no array dos erros.
+
     return false;
 }
 
@@ -80,8 +61,6 @@ function activate_user(string $email, PDO $pdo, array &$errors): bool
  */
 function pack_errors(array $errors): string
 {
-    // Processa os erros, transformando o array de erros em representação JSON, e depois transformando esse resultado em
-    // Base64, facilitando o transporte por URLs.
     return base64_encode(json_encode($errors));
 }
 
@@ -138,8 +117,6 @@ function update_user(string $email, array $fields, PDO $db): bool
 
             if (array_key_exists($untrustedFieldName, $fillable)) {
 
-                // Construir dinâmicamente a clausula ‘SET’ comparando-a com uma lista de campos permitidos, usando o
-                // nome permitido em vez do nome fornecido pelo utilizador.
                 $setClause[] = $fillableField . ' = ?';
                 $params[] = $untrustedField;
 
