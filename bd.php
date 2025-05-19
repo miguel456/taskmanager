@@ -20,6 +20,8 @@ class Database // credenciais NUNCA devem estar no código
 
             $username = $config['Connection']['Username'] ?? 'root';
             $password = $config['Connection']['Password'];
+
+            $debug = $config['General']['Debug'] ?? false;
         }
         else
         {
@@ -28,14 +30,14 @@ class Database // credenciais NUNCA devem estar no código
 
         if (self::$connection === null) {
             try {
-                self::$connection = new PDO("mysql:$host=localhost;port=$port;dbname=$dbname", $username, $password);
+                self::$connection = new PDO("mysql:host=$host;port=$port;dbname=$dbname", $username, $password);
 
                 self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 self::$connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
                 self::$connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
             } catch (PDOException $e) {
-                $message = base64_encode('Base de dados temporáriamente indisponível.');
+                $message = ($debug) ? base64_encode($e->getMessage()) : base64_encode('Base de dados temporáriamente indisponível.');
                 header('Location: backsoon.php?message=' . $message);
                 die('Base de dados temporariamente indisponível.');
             }

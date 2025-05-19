@@ -1,7 +1,8 @@
-<?php global $pdo;
-
+<?php
 require 'bd.php';
 require 'auth/common.php';
+
+$pdo = Database::getConnection();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: registo.php');

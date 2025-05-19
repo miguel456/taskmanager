@@ -3,7 +3,7 @@
 require '../bd.php';
 require 'common.php';
 
-global $pdo;
+$pdo = Database::getConnection();
 
 session_start();
 
