@@ -19,7 +19,7 @@ if(empty($password)) {
     $errors[] = 'Password is required.';
 }
 
-if (!user_exists($email, $pdo)) {
+if (!user_exists($email)) {
     $errors[] = 'Credenciais inválidas ou conta inativa.';
     response('/login.php', 'Unauthorized', $errors, 401);
     die;

@@ -38,11 +38,7 @@ if (empty($email)) {
 
 
 try {
-
-    // Verifica se realmente o utilizador existe utilizando a função que declaramos acima. Passamos o email e a ligação PDO.
-    // Caso se verifique simplesmente inserimos um erro no array de erros e fazemos o redirecionamento. Paramos a execução
-    // do script com "die" caso o browser do utilizador ignore o header que vamos enviar.
-    if (user_exists($email, $pdo)) {
+    if (user_exists($email)) {
         $errors[] = 'O utilizador já existe.';
         header('Location: registo.php?errors=' . pack_errors($errors));
         die;

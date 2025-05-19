@@ -1,14 +1,14 @@
 <?php
-// É boa prática incluir parâmetros PHPDoc em todas as funções adicionais que declaramos, pois assim o IDE pode facilmente
-// fornecer documentação da função.
+
 /**
  * Verifica se o utilizador existe através do e-mail.
  * @param string $email O e-mail a verificar.
- * @param PDO $conn A ligação a utilizar.
  * @return bool Se o utilizador existe ou não.
+ * @throws Exception
  */
-function user_exists(string $email, PDO $conn): bool
+function user_exists(string $email): bool
 {
+    $conn = Database::getConnection();
 
     $stmt = $conn->prepare('SELECT * FROM user WHERE email = ?');
     $stmt->execute([$email]);
@@ -16,9 +16,17 @@ function user_exists(string $email, PDO $conn): bool
     return !empty($stmt->fetch(PDO::FETCH_ASSOC));
 }
 
-function get_user(string $email, PDO $pdo): array
+/**
+ * Obtém o utilizador selecionado.
+ * @param string $email
+ * @return array
+ * @throws Exception
+ */
+function get_user(string $email): array
 {
-    if (user_exists($email, $pdo)) {
+    $pdo = Database::getConnection();
+
+    if (user_exists($email)) {
         $stmt = $pdo->prepare('SELECT * FROM user WHERE email = ?');
         $stmt->execute([$email]);
 
@@ -31,14 +39,16 @@ function get_user(string $email, PDO $pdo): array
 /**
  * Ativa uma conta, definindo o parâmetro estado para 1.
  * @param string $email
- * @param PDO $pdo
  * @param array $errors Lista de erros atual
  * @return bool True se ativado, False se não ativado
+ * @throws Exception
  */
-function activate_user(string $email, PDO $pdo, array &$errors): bool
+function activate_user(string $email, array &$errors): bool
 {
+    $pdo = Database::getConnection();
+
     try {
-        if(user_exists($email, $pdo)) {
+        if(user_exists($email)) {
             $stmt = $pdo->prepare("UPDATE user SET estado = ? WHERE email = ?");
             $stmt->execute([
                 1,
@@ -86,7 +96,6 @@ function response($back, $hmessage, array $errors = [], int $code = 200): void
 
 /**
  * Verifica se o utilizador tem sessão iniciada.
- * @param string $email O email do utilizador.
  * @return bool Se tem sessão iniciada ou não.
  */
 function is_logged_in(): bool
@@ -98,11 +107,13 @@ function is_logged_in(): bool
  * Atualiza um ou mais campos do utilizador.
  * @param string $email O email associado à conta.
  * @param array $fields A lista associativa de campos, comparados com uma lista de campos autorizados, a atualizar com os respetivos valores.
- * @param PDO $db A ligação à base de dados.
  * @return bool Sucesso ou não.
+ * @throws Exception
  */
-function update_user(string $email, array $fields, PDO $db): bool
+function update_user(string $email, array $fields): bool
 {
+    $db = Database::getConnection();
+
     $fillable = [
         'nome',
         'email'
@@ -127,19 +138,20 @@ function update_user(string $email, array $fields, PDO $db): bool
     $sql = 'UPDATE user SET ' . implode(" ", $setClause) . 'WHERE iduser = ?';
     $stmt = $db->prepare($sql);
 
-    $stmt->execute($params);
-
+    return $stmt->execute($params);
 }
 
 /**
  * Gera um código de ativação para o utilizador.
  * @param string $email
- * @param PDO $db
  * @return bool
+ * @throws Exception
  */
-function prepare_verification(string $email, PDO $db): bool
+function prepare_verification(string $email): bool
 {
-    if (user_exists($email, $db)) {
+    $db = Database::getConnection();
+
+    if (user_exists($email)) {
         $user = get_user($email, $db);
         $key = bin2hex(openssl_random_pseudo_bytes(64));
 
@@ -169,14 +181,16 @@ function prepare_verification(string $email, PDO $db): bool
  * @param string $email O email do utilizador
  * @param string $token O token do utilizador
  * @param bool $set_used Marcar como usado ou não
- * @params PDO $db A ligação à bd
  * @return bool|null True/False dependendo do estado do token; null se o utilizador ou o token não existirem.
+ * @throws Exception
  */
-function verify_token(string $email, string $token, PDO $db, bool $set_used = true): ?bool
+function verify_token(string $email, string $token, bool $set_used = true): ?bool
 {
     // Precisamos de fazer validação extra aqui sobre as datas atuais e as do token.
 
-    if (!user_exists($email, $db)) {
+    $db = Database::getConnection();
+
+    if (!user_exists($email)) {
         return null;
     }
 

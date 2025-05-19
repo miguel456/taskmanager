@@ -39,7 +39,6 @@ if (empty($errors)) {
                 'username' => $username,
                 'email' => $email
             ],
-            $pdo
         );
         $_SESSION['email'] = $email;
         $_SESSION['username'] = $username;
