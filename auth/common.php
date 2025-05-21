@@ -280,3 +280,12 @@ function get_messages(): array
     $_SESSION['message_bag'] = $message_bag;
     return $_SESSION['message_bag'];
 }
+
+/**
+ * Verifica se existem mensagens no saco
+ * @return bool
+ */
+function bag_has_message(): bool
+{
+    return count($_SESSION['message_bag']) !== 0;
+}
