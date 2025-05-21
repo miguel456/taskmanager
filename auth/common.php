@@ -210,3 +210,73 @@ function verify_token(string $email, string $token, bool $set_used = true): ?boo
     return false;
 }
 
+/**
+ * Escreve uma mensagem na sessão atual, que pode ser lida por todas as páginas que a suportam.
+ * @param string $message_title Título da mensagem. Pode ser ignorado pela página.
+ * @param string $message_body Corpo da mensagem.
+ * @param string $type Tipo da mensagem. Pode ser "error", "success" ou "info".
+ * @return void
+ */
+function flash_message(string $message_title, string $message_body, string $type = 'success'): void
+{
+    // Mensagem do tipo flash - expira imediatamente
+    $ttl = 0;
+    $id = bin2hex(random_bytes(16));
+
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+
+    $_SESSION['message_bag'] = [
+      [
+          'meta' => [
+              'id' => $id,
+              'ttl' => $ttl,
+          ],
+          'title' => $message_title,
+          'body' => $message_body,
+          'type' => $type
+      ]
+    ];
+}
+
+/**
+ * Devolve uma lista de erros e mensagens de sucesso do saco de mensagens definido anteriormente, limpando-o no final.
+ * @return array
+ */
+function pull_messages(): array
+{
+    if (session_status() !== PHP_SESSION_ACTIVE || !isset($_SESSION['message_bag'])) {
+        return [];
+    }
+
+    $message_bag = $_SESSION['message_bag'];
+
+    unset($_SESSION['message_bag']);
+    return $message_bag;
+
+}
+
+function get_messages(): array
+{
+    if (session_status() !== PHP_SESSION_ACTIVE || !isset($_SESSION['message_bag'])) {
+        return [];
+    }
+
+    $message_bag = $_SESSION['message_bag'];
+
+    // Gerir o tempo de vida da mensagem
+    foreach ($message_bag as $key => &$message) {
+
+        if ($message['meta']['ttl'] == 0) {
+            unset($message_bag[$key]);
+        } else {
+            $message['meta']['ttl']--;
+        }
+
+    }
+    unset($message);
+
+    $_SESSION['message_bag'] = $message_bag;
+    return $_SESSION['message_bag'];
+}
