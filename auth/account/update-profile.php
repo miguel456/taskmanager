@@ -44,4 +44,7 @@ if (empty($errors)) {
         $_SESSION['username'] = $username;
     }
 
+    flash_message("Alterações guardadas", "Os dados do perfil foram atualizados.");
+    response('/auth/account/profile.php', 'OK');
+
 }
