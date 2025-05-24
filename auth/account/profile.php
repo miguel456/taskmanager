@@ -38,39 +38,8 @@ if (!isset($_SESSION['logged_in'])) {
     </style>
 </head>
 <body>
-<script>
-    <?php
-    $errors = [];
-    $successes = [];
 
-    foreach (pull_messages() as $message) {
-        if ($message['type'] === 'success') {
-            $successes[] = $message;
-        } else {
-            $errors[] = $message;
-        }
-    }
-    if (!empty($errors)) :
-    $errorText = '';
-    foreach ($errors as $error) {
-        $errorText .= '<b>' . htmlspecialchars($error['title']) . '</b><br>' . nl2br(htmlspecialchars($error['message'])) . '<br><br>';
-    }
-    ?>
-    Swal.fire({
-        title: "Um ou mais itens da sua submissão contém erros.",
-        html: "<?php echo addslashes($errorText); ?>",
-        icon: "error"
-    });
-    <?php endif; ?>
-
-    <?php foreach ($successes as $success) : ?>
-    Swal.fire({
-        title: "<?php echo htmlspecialchars($success['title']); ?>",
-        text: "<?php echo htmlspecialchars($success['message']); ?>",
-        icon: "success"
-    });
-    <?php endforeach; ?>
-</script>
+<?php include 'error/flash-messages.php'?>
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">

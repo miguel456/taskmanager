@@ -1,5 +1,4 @@
 <?php
-
 require 'bd.php';
 
 ?>
@@ -15,20 +14,7 @@ require 'bd.php';
 <div class="container d-flex justify-content-center align-items-center vh-100">
     <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px;">
         <h2 class="text-center mb-4">Register</h2>
-        <?php
-
-            if(isset($_GET['mensagem'])) {
-                echo '<div class="alert alert-success"><p>Registo concluído com sucesso.</p></div>';
-            }
-
-            if(isset($_GET['errors'])) {
-                $errors = json_decode(base64_decode($_GET['errors']));
-                foreach ($errors as $error) {
-                    echo '<div class="alert alert-danger">' . htmlspecialchars($error) . '</div>';
-                }
-            }
-        ?>
-        <form action="register.php" method="POST" novalidate>
+        <form action="auth/register.php" method="POST" novalidate>
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" name="username" required>
@@ -55,5 +41,7 @@ require 'bd.php';
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?php include 'error/flash-messages.php' ?>
 </body>
 </html>

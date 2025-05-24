@@ -6,8 +6,6 @@ require '../../bd.php';
 $pdo = Database::getConnection();
 $errors = [];
 
-session_start();
-
 if (!is_logged_in()) {
     $errors[] = 'Sem sessão iniciada.';
     response('/error/access-denied.html', 'Unauthorized', $errors);

@@ -6,9 +6,6 @@
       <synchronize>true</synchronize>
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mariadb://172.24.7.149:3306/taskprojects</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="database.introspection.mysql.dbe5060" value="true" />
-      </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

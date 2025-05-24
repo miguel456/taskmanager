@@ -1,8 +1,6 @@
 <?php
 require '../auth/common.php';
 
-session_start();
-
 $errors = [];
 
 if (!isset($_SESSION['logged_in'])) {

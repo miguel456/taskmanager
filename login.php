@@ -1,12 +1,3 @@
-<?php
-require 'auth/common.php';
-session_start();
-
-if (isset($_SESSION['logged_in'])) {
-    response('/dashboard/inicio.php', 'OK');
-    die;
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,14 +38,6 @@ if (isset($_SESSION['logged_in'])) {
 <body>
 <div class="login-container">
     <h2 class="text-center mb-4">Login</h2>
-    <?php
-        if(isset($_GET['errors'])) {
-            $errors = json_decode(base64_decode($_GET['errors']));
-            foreach ($errors as $error) {
-                echo '<div class="alert alert-danger">' . htmlspecialchars($error) . '</div>';
-            }
-        }
-    ?>
     <form action="auth/authenticate.php" method="POST" novalidate>
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
@@ -78,5 +61,16 @@ if (isset($_SESSION['logged_in'])) {
     </form>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?php
+// common is already starting a session (which is included by flash messages), keep that in mind
+include 'error/flash-messages.php';
+
+if (is_logged_in()) {
+    response('/dashboard/inicio.php');
+    die;
+}
+
+?>
 </body>
 </html>

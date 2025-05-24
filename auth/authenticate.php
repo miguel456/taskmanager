@@ -5,42 +5,47 @@ require 'common.php';
 
 $pdo = Database::getConnection();
 
-session_start();
-
 $email = $_POST['email'];
 $password = $_POST['password'];
 
 $errors = [];
-if(empty($email)) {
-    $errors[] = 'E-mail address is required.';
+if(empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errors[] = 'O e-mail é obrigatório e tem de corresponder ao formato@correto.';
 }
 
 if(empty($password)) {
-    $errors[] = 'Password is required.';
+    $errors[] = 'A palavra-passe é obrigatória.';
 }
 
-if (!user_exists($email)) {
-    $errors[] = 'Credenciais inválidas ou conta inativa.';
-    response('/login.php', 'Unauthorized', $errors, 401);
+if (!empty($errors)) {
+    foreach ($errors as $error) {
+        flash_message('Erro de autenticação', $error, 'error');
+    }
+
+    response('/login.php', 'Unauthorized', [], 401);
     die;
 }
 
-$userStmt = $pdo->prepare("SELECT * FROM user WHERE email = ?");
-$userStmt->execute([$email]);
+if (!user_exists($email)) {
+    flash_message('Erro de autenticação', 'Credenciais inválidas ou conta inativa.');
+    response('/login.php', 'Unauthorized', [], 401);
+}
 
-$user = $userStmt->fetch(PDO::FETCH_ASSOC);
+$user = get_user($email);
 
 if(password_verify($password, $user['password']) && $user['estado'] == 1) {
     $_SESSION['logged_in'] = true;
     $_SESSION['username'] = $user['nome'];
     $_SESSION['email'] = $user['email'];
 
-    header('Location: /dashboard/inicio.php?message=' . urlencode('Autenticado com sucesso! Bem-vindo ' . $user['nome'] . '.'));
+    flash_message('Bem-vindo ' . $_SESSION['username'] . '!', 'Tem agora a sessão iniciada.');
+    response('/dashboard/inicio.php');
+
 }
 else
 {
-    $errors[] = 'Credenciais inválidas ou conta inativa.';
-    response('/login.php', 'Unauthorized', $errors, 401);
+    flash_message('Erro de autenticação', 'Credenciais inválidas ou conta inativa.', 'error');
+    response('/login.php', 'Unauthorized', [], 401);
 }
 
 die('Falha no redirecionamento!');

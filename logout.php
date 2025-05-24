@@ -1,7 +1,10 @@
 <?php
+
+require 'auth/common.php';
+
 session_start();
 
-if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']) {
+if (is_logged_in()) {
     $_SESSION = [];
 
     session_unset();
@@ -9,5 +12,5 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']) {
     session_regenerate_id(true);
 }
 
-header('Location: /login.php');
+response('/login.php');
 die;

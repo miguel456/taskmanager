@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 /**
  * Verifica se o utilizador existe através do e-mail.
@@ -66,6 +67,8 @@ function activate_user(string $email, array &$errors): bool
 
 /**
  * Processar os erros.
+ * @deprecated Será removida numa versão futura; erros são agora processados na sessão.
+ * @see flash_message()
  * @param array $errors
  * @return string
  */
@@ -83,7 +86,7 @@ function pack_errors(array $errors): string
  * @param int $code Código de erro
  * @return void
  */
-function response($back, $hmessage, array $errors = [], int $code = 200): void
+function response(string $back, string $hmessage = "OK", array $errors = [], int $code = 200): void
 {
     if (empty($errors)) {
         header('Location: ' . $back);
@@ -91,7 +94,7 @@ function response($back, $hmessage, array $errors = [], int $code = 200): void
     }
 
     header("HTTP/1.1 $code $hmessage");
-    header("Location: $back/?errors=" . pack_errors($errors));
+    header("Location: $back");
 }
 
 /**
@@ -227,16 +230,19 @@ function flash_message(string $message_title, string $message_body, string $type
         session_start();
     }
 
-    $_SESSION['message_bag'] = [
-      [
-          'meta' => [
-              'id' => $id,
-              'ttl' => $ttl,
-          ],
-          'title' => $message_title,
-          'body' => $message_body,
-          'type' => $type
-      ]
+    if (!bag_has_message()) {
+        $_SESSION['message_bag'] = [];
+    }
+
+    $_SESSION['message_bag'][] = [
+        'meta' => [
+            'id' => $id,
+            'ttl' => $ttl,
+        ],
+
+        'title' => $message_title,
+        'body' => $message_body,
+        'type' => $type
     ];
 }
 
@@ -287,5 +293,5 @@ function get_messages(): array
  */
 function bag_has_message(): bool
 {
-    return count($_SESSION['message_bag']) !== 0;
+    return isset($_SESSION['message_bag']) && count($_SESSION['message_bag']) !== 0;
 }
