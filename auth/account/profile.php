@@ -1,12 +1,6 @@
 <?php
-require '../common.php';
+require_once realpath(__DIR__ . '/../../app/bootstrap.php');
 
-session_start();
-
-if (!isset($_SESSION['logged_in'])) {
-    header('Location: /error/access-denied.html');
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -39,7 +33,6 @@ if (!isset($_SESSION['logged_in'])) {
 </head>
 <body>
 
-<?php include 'error/flash-messages.php'?>
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
@@ -124,5 +117,16 @@ if (!isset($_SESSION['logged_in'])) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?php
+
+include '../../error/flash-messages.php';
+
+if (!is_logged_in()) {
+    header('Location: /error/access-denied.html');
+    exit;
+}
+
+?>
+
 </body>
 </html>

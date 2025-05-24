@@ -1,6 +1,5 @@
 <?php
-
-require realpath(__DIR__ . "/../auth/common.php");
+require_once realpath(__DIR__ . '/../app/bootstrap.php');
 ?>
 
 <?php if (bag_has_message()) : ?>

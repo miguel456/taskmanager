@@ -1,6 +1,6 @@
 <?php
 
-require 'auth/common.php';
+require_once realpath(__DIR__ . '/app/bootstrap.php');
 
 session_start();
 

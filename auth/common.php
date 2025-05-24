@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once realpath(__DIR__ . '/../app/bootstrap.php');
 
 /**
  * Verifica se o utilizador existe através do e-mail.

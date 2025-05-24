@@ -1,7 +1,7 @@
 <?php
 
-require '../common.php';
-require '../../bd.php';
+require_once realpath(__DIR__ . '/../../app/bootstrap.php');
+
 
 $pdo = Database::getConnection();
 $errors = [];
@@ -17,16 +17,16 @@ $email = $_POST['email'];
 
 
 if (empty($username)) {
-    $errors[] = 'Username can\'t be empty.';
+    $errors[] = 'O nome de utilizador não pode estar vazio.';
 }
 
 if (empty($email)) {
-    $errors[] = 'Email can\'t be empty';
+    $errors[] = 'O e-mail não pode estar vazio.';
 }
 else
 {
     if (is_null(filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_NULL_ON_FAILURE))) {
-        $errors[] = 'Email must be valid.';
+        $errors[] = 'O email tem de corresponder ao formato@correto.';
     }
 }
 
@@ -43,6 +43,13 @@ if (empty($errors)) {
     }
 
     flash_message("Alterações guardadas", "Os dados do perfil foram atualizados.");
-    response('/auth/account/profile.php', 'OK');
+    response('/auth/account/profile.php');
+
+}
+
+foreach ($errors as $error) {
+
+    flash_message('Erro de validação!', $error);
+    response('/auth/account/profile.php', 'Bad Request', [], 400);
 
 }

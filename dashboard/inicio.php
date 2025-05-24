@@ -1,5 +1,5 @@
 <?php
-require '../auth/common.php';
+require_once realpath(__DIR__ . '/../app/bootstrap.php');
 
 $errors = [];
 
@@ -58,7 +58,7 @@ if (!isset($_SESSION['logged_in'])) {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-user"></i> Profile</a>
+                    <a class="nav-link" href="/auth/account/update-profile.php"><i class="fas fa-user"></i> Profile</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a>

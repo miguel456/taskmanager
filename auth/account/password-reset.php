@@ -1,7 +1,7 @@
 <?php
 
-require '../../bd.php';
-require '../common.php';
+require_once realpath(__DIR__ . '/../../app/bootstrap.php');
+
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     die('Acesso direto não permitido.');

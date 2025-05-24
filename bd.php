@@ -1,4 +1,7 @@
 <?php
+require_once realpath(__DIR__ . '/app/bootstrap.php');
+
+
 class Database // credenciais NUNCA devem estar no código
 {
     private static ?PDO $connection = null;

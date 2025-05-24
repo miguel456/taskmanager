@@ -1,3 +1,6 @@
+<?php
+require_once realpath(__DIR__ . '/app/bootstrap.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,7 +66,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <?php
-// common is already starting a session (which is included by flash messages), keep that in mind
 include 'error/flash-messages.php';
 
 if (is_logged_in()) {
