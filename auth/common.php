@@ -117,6 +117,13 @@ function update_user(string $email, array $fields): bool
 {
     $db = Database::getConnection();
 
+    if (user_exists($email)) {
+        $user = get_user($email);
+    } else {
+        return false;
+    }
+
+
     $fillable = [
         'nome',
         'email'
@@ -127,20 +134,22 @@ function update_user(string $email, array $fields): bool
 
     foreach ($fields as $untrustedFieldName => $untrustedField) {
 
-        foreach ($fillable as $fillableField) {
+        if (in_array($untrustedFieldName, $fillable)) {
 
-            if (array_key_exists($untrustedFieldName, $fillable)) {
+            $setClause[] = $untrustedFieldName . ' = ?';
+            $params[] = $untrustedField;
 
-                $setClause[] = $fillableField . ' = ?';
-                $params[] = $untrustedField;
-
-            }
         }
     }
 
-    $sql = 'UPDATE user SET ' . implode(" ", $setClause) . 'WHERE iduser = ?';
+    if (empty($setClause)) {
+        return false;
+    }
+
+    $sql = 'UPDATE user SET ' . implode(", ", $setClause) . ' WHERE iduser = ?';
     $stmt = $db->prepare($sql);
 
+    $params[] = $user['iduser'];
     return $stmt->execute($params);
 }
 
@@ -234,10 +243,12 @@ function flash_message(string $message_title, string $message_body, string $type
         $_SESSION['message_bag'] = [];
     }
 
+    $debug_backtrace = debug_backtrace();
     $_SESSION['message_bag'][] = [
         'meta' => [
             'id' => $id,
             'ttl' => $ttl,
+            'invoker' => array_shift($debug_backtrace)
         ],
 
         'title' => $message_title,
