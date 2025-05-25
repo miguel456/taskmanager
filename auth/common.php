@@ -154,6 +154,27 @@ function update_user(string $email, array $fields): bool
 }
 
 /**
+ * Atualiza a palavra-passe do utilizador.
+ * @param string $email O email da conta
+ * @param string $new_password A nova password
+ * @return bool Se foi bem-sucedido ou bão
+ * @throws Exception
+ */
+function update_user_password(string $email, string $new_password): bool
+{
+    $db = Database::getConnection();
+
+    if (user_exists($email)) {
+        $user = get_user($email);
+
+        $stmt = $db->prepare('UPDATE user SET password = ? WHERE iduser = ?');
+        return $stmt->execute([password_hash($new_password, PASSWORD_DEFAULT), $user['iduser']]);
+    }
+
+    return false;
+}
+
+/**
  * Gera um código de ativação para o utilizador.
  * @param string $email
  * @return bool
