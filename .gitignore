@@ -1,2 +1,3 @@
 config/database.ini
 /vendor/
+xdebug_info.php

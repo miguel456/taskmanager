@@ -1,6 +1,5 @@
 <?php
 require_once realpath(__DIR__ . '/../../app/bootstrap.php');
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
