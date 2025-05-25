@@ -1,13 +1,5 @@
 <?php
 require_once realpath(__DIR__ . '/../app/bootstrap.php');
-
-$errors = [];
-
-if (!isset($_SESSION['logged_in'])) {
-    response('/error/access-denied.html', 'Unauthorized', $errors, 401);
-    die;
-}
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -58,7 +50,7 @@ if (!isset($_SESSION['logged_in'])) {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/auth/account/update-profile.php"><i class="fas fa-user"></i> Profile</a>
+                    <a class="nav-link" href="/auth/account/profile.php"><i class="fas fa-user"></i> Profile</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a>
@@ -87,5 +79,15 @@ if (!isset($_SESSION['logged_in'])) {
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?php
+include '../error/flash-messages.php';
+
+if (!is_logged_in()) {
+    response('/error/access-denied.html', 'Unauthorized', [], 401);
+    die;
+}
+
+?>
 </body>
 </html>
