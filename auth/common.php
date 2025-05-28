@@ -129,28 +129,7 @@ function update_user(string $email, array $fields): bool
         'email'
     ];
 
-    $params = [];
-    $setClause = [];
-
-    foreach ($fields as $untrustedFieldName => $untrustedField) {
-
-        if (in_array($untrustedFieldName, $fillable)) {
-
-            $setClause[] = $untrustedFieldName . ' = ?';
-            $params[] = $untrustedField;
-
-        }
-    }
-
-    if (empty($setClause)) {
-        return false;
-    }
-
-    $sql = 'UPDATE user SET ' . implode(", ", $setClause) . ' WHERE iduser = ?';
-    $stmt = $db->prepare($sql);
-
-    $params[] = $user['iduser'];
-    return $stmt->execute($params);
+    return update_table_data('user', ['iduser', $user['iduser']], $fillable, $fields);
 }
 
 /**
