@@ -48,7 +48,7 @@ if (!is_logged_in()) {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link nav-active" href="/dashboard/inicio.php"><i class="fa fa-home"></i> Dashboard</a>
+                    <a class="nav-link nav-active" href="/dashboard/index.php"><i class="fa fa-home"></i> Dashboard</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/auth/account/profile.php"><i class="fas fa-user"></i> Profile</a>

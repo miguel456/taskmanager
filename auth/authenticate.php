@@ -39,7 +39,7 @@ if(password_verify($password, $user['password']) && $user['estado'] == 1) {
     $_SESSION['id'] = $user['iduser'];
 
     flash_message('Bem-vindo ' . $_SESSION['username'] . '!', 'Tem agora a sessão iniciada.');
-    response('/dashboard/inicio.php');
+    response('/dashboard/index.php');
 
 }
 else

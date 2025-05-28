@@ -69,7 +69,7 @@ require_once realpath(__DIR__ . '/app/bootstrap.php');
 include 'error/flash-messages.php';
 
 if (is_logged_in()) {
-    response('/dashboard/inicio.php');
+    response('/dashboard/index.php');
     die;
 }
 
