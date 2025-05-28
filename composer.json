@@ -10,12 +10,19 @@
         }
     ],
     "require": {
-        "vlucas/phpdotenv": "^5.6"
+        "vlucas/phpdotenv": "^5.6","ext-pdo": "*"
     },
   "autoload": {
+      "psr-4": {
+        "App\\Models\\": "Models/"
+      },
       "files": [
           "bd.php",
-          "auth/common.php"
+          "auth/common.php",
+          "common/database.php"
       ]
-  }
+  },
+    "require-dev": {
+        "symfony/var-dumper": "^7.2"
+    }
 }

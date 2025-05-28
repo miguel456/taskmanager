@@ -1,5 +1,11 @@
 <?php
 require_once realpath(__DIR__ . '/../../app/bootstrap.php');
+
+if (!is_logged_in()) {
+    header('Location: /error/access-denied.html');
+    exit;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,17 +48,20 @@ require_once realpath(__DIR__ . '/../../app/bootstrap.php');
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/dashboard/inicio.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a class="nav-link nav-active" href="/dashboard/inicio.php"><i class="fa fa-home"></i> Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="profile.php"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                    <a class="nav-link" href="/auth/account/profile.php"><i class="fas fa-user"></i> Profile</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-info-circle"></i> Help</a>
+                </li>
             </ul>
             <form class="d-flex">
-                <a href="logout.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                <a href="/logout.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </form>
         </div>
     </div>
@@ -116,16 +125,6 @@ require_once realpath(__DIR__ . '/../../app/bootstrap.php');
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<?php
-
-include '../../error/flash-messages.php';
-
-if (!is_logged_in()) {
-    header('Location: /error/access-denied.html');
-    exit;
-}
-
-?>
-
+<?php include '../../error/flash-messages.php'; ?>
 </body>
 </html>
