@@ -1,0 +1,52 @@
+/* assets/css/navbar-custom.css */
+.custom-navbar {
+    background: linear-gradient(90deg, #232526 0%, #414345 100%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.custom-navbar .navbar-brand {
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #fff !important;
+}
+
+.custom-navbar .nav-link {
+    color: #d1d1d1 !important;
+    transition: color 0.2s, background 0.2s;
+    border-radius: 4px;
+    margin-right: 4px;
+    padding: 8px 14px;
+}
+
+.custom-navbar .nav-link.active,
+.custom-navbar .nav-link:hover {
+    color: #fff !important;
+    background: rgba(255,255,255,0.08);
+}
+
+.user-btn {
+    font-weight: 500;
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    border: 1px solid #6c757d;
+    border-radius: 20px;
+    padding: 6px 16px;
+    cursor: default;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-danger.btn-sm {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+@media (max-width: 991.98px) {
+    .custom-navbar .navbar-collapse {
+        background: #232526;
+        border-radius: 0 0 8px 8px;
+        margin-top: 8px;
+    }
+}

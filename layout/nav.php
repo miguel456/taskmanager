@@ -1,30 +1,32 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<?php
+$current = $_SERVER['REQUEST_URI'];
+$username = htmlspecialchars($_SESSION['username'] ?? 'Utilizador');
+?>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark custom-navbar">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#"><i class="fas fa-home"></i> Dashboard</a>
+        <a class="navbar-brand" href="/dashboard/index.php"><i class="fas fa-fire"></i> TaskManager</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link nav-active" href="/dashboard/index.php"><i class="fa fa-home"></i> Dashboard</a>
+                    <a class="nav-link<?php if (str_contains($current, '/dashboard/index.php')) echo ' active'; ?>" href="/dashboard/index.php"><i class="fa fa-home"></i> Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/auth/account/profile.php"><i class="fas fa-user"></i> Profile</a>
+                    <a class="nav-link<?php if (str_contains($current, '/auth/account/profile.php')) echo ' active'; ?>" href="/auth/account/profile.php"><i class="fas fa-user"></i> Profile</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/projects"><i class="fa fa-list-check"></i> Projetos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-info-circle"></i> Help</a>
+                    <a class="nav-link<?php if (str_contains($current, '/projects')) echo ' active'; ?>" href="/projects"><i class="fa fa-list-check"></i> Projetos</a>
                 </li>
             </ul>
-            <form class="d-flex">
-                <a href="/logout.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
-            </form>
+            <div class="d-flex align-items-center gap-2">
+                <span class="btn btn-outline-light btn-sm user-btn mb-0" tabindex="-1" style="pointer-events: none;">
+                    <i class="fas fa-user-circle"></i> <?php echo $username; ?>
+                </span>
+                <a href="/logout.php" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
         </div>
     </div>
 </nav>
+<link rel="stylesheet" href="/assets/css/navbar-custom.css">
