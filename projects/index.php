@@ -15,7 +15,7 @@ $statuses = $status->get_status(0, true);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Management</title>
+    <title>TaskManager | Gestão de Projetos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -87,7 +87,7 @@ $statuses = $status->get_status(0, true);
         <div class="modal-content">
             <form action="create-project.php" method="POST" novalidate>
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createProjectModalLabel">Criar novo projeto</h5>
+                    <h5 class="modal-title" id="createProjectModalLabel">Novo projeto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -145,7 +145,7 @@ $statuses = $status->get_status(0, true);
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    Tem a certeza que pretende apagar este projeto? Esta ação é irreversível. Tenha em mente que projetos com tarefas associadas não podem ser apagados.
+                    <p>Tem a certeza que pretende apagar este projeto? Esta ação é irreversível. Tenha em mente que projetos com tarefas associadas não podem ser apagados.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-danger"><i class="fas fa-trash-can"></i> Confirmar</button>
@@ -166,6 +166,8 @@ $statuses = $status->get_status(0, true);
         });
     });
 </script>
+
+<?php include  '../error/flash-messages.php'; ?>
 
 </body>
 </html>
