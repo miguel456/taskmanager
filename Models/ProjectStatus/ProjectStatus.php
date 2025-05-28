@@ -17,7 +17,7 @@ class ProjectStatus
 
     public function __construct(string $name = 'Projeto exemplo', string $description = 'Descrição do projeto', bool $status = true)
     {
-        $this->conn = \Database::getConnection();
+        $this->conn = \App\Core\Database\Database::getConnection();
 
         $this->name = $name;
         $this->description = $description;

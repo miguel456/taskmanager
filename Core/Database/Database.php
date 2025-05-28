@@ -1,12 +1,18 @@
 <?php
-require_once realpath(__DIR__ . '/app/bootstrap.php');
+
+namespace App\Core\Database;
+use PDO;
+
+require_once realpath(__DIR__ . '/../../app/bootstrap.php');
 
 
 class Database // credenciais NUNCA devem estar no código
 {
     private static ?PDO $connection = null;
 
-    private function __construct(){}
+    private function __construct()
+    {
+    }
 
     /**
      * @throws Exception
@@ -14,7 +20,7 @@ class Database // credenciais NUNCA devem estar no código
     public static function getConnection(): PDO
     {
 
-        $config = parse_ini_file('config/database.ini', true);
+        $config = parse_ini_file(realpath(__DIR__ . '/../../config/database.ini'), true);
 
         if ($config) {
             $host = $config['Connection']['Host'] ?? 'localhost';
@@ -25,9 +31,7 @@ class Database // credenciais NUNCA devem estar no código
             $password = $config['Connection']['Password'];
 
             $debug = $config['General']['Debug'] ?? false;
-        }
-        else
-        {
+        } else {
             throw new Exception('Configuração inválida!');
         }
 

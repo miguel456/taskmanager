@@ -4,7 +4,7 @@ namespace App\Models\Projects;
 require_once realpath(__DIR__ . '/../../app/bootstrap.php');
 
 use App\Models\ProjectStatus\ProjectStatus;
-use Database;
+use App\Core\Database\Database;
 use PDO;
 
 /**

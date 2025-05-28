@@ -1,5 +1,7 @@
 <?php
 
+use App\Core\Database\Database;
+
 require_once realpath(__DIR__ . '/../app/bootstrap.php');
 
 
