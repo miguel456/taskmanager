@@ -51,7 +51,7 @@ class ProjectStatus
         $stmt = $this->conn->prepare('SELECT * FROM project_status WHERE id = ?');
         $stmt->execute([$status_id]);
 
-        return count($stmt->fetch(PDO::FETCH_ASSOC)) >= 1;
+        return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
     }
 
     /**
