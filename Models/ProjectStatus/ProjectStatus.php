@@ -59,18 +59,31 @@ class ProjectStatus
      * Retorna o estado pedido.
      * @param int $status_id
      * @param bool $all Se pretende devolver todos os registos; caso contrário devolve o registo referente ao $status_id
+     * @param bool $valid_only Se pretende apenas devolver estados válidos
      * @return array
      */
-    public function get_status(int $status_id, bool $all = false): array
+    public function get_status(int $status_id, bool $all = false, bool $valid_only = false): array
     {
         $db = $this->conn;
 
         if ($all) {
-            $stmt = $db->prepare('SELECT * FROM project_status');
+
+            if ($valid_only) {
+                $stmt = $db->prepare('SELECT * FROM project_status WHERE status = 1');
+            } else {
+                $stmt = $db->prepare('SELECT * FROM project_status');
+            }
+
             $stmt->execute();
         }
         else {
-            $stmt = $db->prepare('SELECT * FROM project_status WHERE id = ?');
+
+            if ($valid_only) {
+                $stmt = $db->prepare('SELECT * FROM project_status WHERE id = ? AND status = 1');
+            } else {
+                $stmt = $db->prepare('SELECT * FROM project_status WHERE id = ?');
+            }
+
             $stmt->execute([$status_id]);
         }
 

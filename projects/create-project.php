@@ -19,6 +19,12 @@ $status_code = $_POST['status'];
 $project = new Project();
 $status = new ProjectStatus();
 
+if (empty($status->get_status(0, true, true))) {
+    flash_message('Impossível adicionar projeto', 'Não pode registar um projeto sem estados disponíveis.', 'error');
+    response('/projects');
+    die;
+}
+
 if (!$status->status_exists($status_code)) {
     flash_message('Dados inválidos', 'O "Estado" selecionado não é válido para o projeto atual ou encontra-se inativo.', 'error');
 }
