@@ -16,8 +16,22 @@ $username = htmlspecialchars($_SESSION['username'] ?? 'Utilizador');
                 <li class="nav-item">
                     <a class="nav-link<?php if (str_contains($current, '/auth/account/profile.php')) echo ' active'; ?>" href="/auth/account/profile.php"><i class="fas fa-user"></i> Profile</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link<?php if (str_contains($current, '/projects')) echo ' active'; ?>" href="/projects"><i class="fa fa-list-check"></i> Projetos</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle<?php if (str_contains($current, '/projects') && !str_contains($current, '/projects/statuses')) echo ' active'; ?>" href="#" id="projectsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-list-check"></i> Projetos
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="projectsDropdown">
+                        <li>
+                            <a class="dropdown-item<?php if ($current === '/projects' || $current === '/projects/') echo ' active'; ?>" href="/projects">
+                                <i class="fas fa-tasks"></i> Gerir projetos
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item<?php if (str_contains($current, '/projects/statuses')) echo ' active'; ?>" href="/projects/statuses">
+                                <i class="fas fa-flag"></i> Gerir estados
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
             <div class="d-flex align-items-center gap-2">

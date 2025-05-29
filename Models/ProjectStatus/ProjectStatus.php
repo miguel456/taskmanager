@@ -1,6 +1,7 @@
 <?php
-
 namespace App\Models\ProjectStatus;
+
+require_once realpath(__DIR__ . '/../../vendor/autoload.php');
 
 use PDO;
 
