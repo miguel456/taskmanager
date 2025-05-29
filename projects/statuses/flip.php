@@ -19,5 +19,5 @@ if ($status->status_exists($status_id)) {
    die;
 }
 
-flash_message('Erro Interno', 'Não foi possível alterar o estado do estado. Tente novamente mais tarde');
+flash_message('Erro Interno', 'Não foi possível alterar o estado do estado. Tente novamente mais tarde', 'error');
 response('/projects/statuses');
