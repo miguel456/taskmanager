@@ -34,90 +34,104 @@ $statuses = new ProjectStatus()->get_status(0, true, true);
         .navbar { margin-bottom: 20px; }
         .card { border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .table th, .table td { vertical-align: middle; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-content {
+            flex: 1 0 auto;
+        }
     </style>
 </head>
 <body>
     <?php include_once '../layout/nav.php' ?>
-    <div class="container my-4">
-        <?php if (!empty($statuses)): ?>
+    <div class="main-content">
+        <div class="container my-4">
+            <?php if (!empty($statuses)): ?>
 
-            <div class="row justify-content-center align-items-center">
-                <div class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0" style="min-height: 100%;">
-                    <img src="/img/edit-post.svg" alt="Woman messing around on her phone" height="180" class="img-fluid" style="max-width: 80%; object-fit: contain;">
-                </div>
-                <div class="col-md-8">
-                    <div class="card p-0 mb-4">
-                        <div class="card-body p-4">
-                            <div class="mb-4">
-                                <h2 class="card-title mb-2"><i class="fas fa-pen-to-square"></i> Editar projeto</h2>
-                                <p class="card-text text-muted mb-0">Alteração do projeto - algumas operações, como alteração do utilizador atribuído, podem não estar disponíveis nesta página.</p>
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0" style="min-height: 100%;">
+                        <img src="/img/edit-post.svg" alt="Woman messing around on her phone" height="180" class="img-fluid" style="max-width: 80%; object-fit: contain;">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card p-0 mb-4">
+                            <div class="card-body p-4">
+                                <div class="mb-4">
+                                    <h2 class="card-title mb-2"><i class="fas fa-pen-to-square"></i> Editar projeto</h2>
+                                    <p class="card-text text-muted mb-0">Alteração do projeto - algumas operações, como alteração do utilizador atribuído, podem não estar disponíveis nesta página.</p>
+                                </div>
+                                <form id="editProject" action="edit-project.php" method="POST" novalidate>
+                                    <input type="hidden" name="pid" value="<?php echo htmlspecialchars($pId); ?>">
+                                    <div class="mb-3">
+                                        <label for="projectName" class="form-label">Nome do projeto</label>
+                                        <input type="text" class="form-control" id="projectName" name="project_name" value="<?php echo $project['name'] ?>" required>
+                                        <div class="invalid-feedback">Introduza um nome de projeto.</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <!-- não editável -->
+                                        <label for="assignedToName" class="form-label">Atribuído a</label>
+                                        <input type="text" class="form-control" id="assignedToName" value="<?php echo $assigned_to['nome'] ?>" disabled>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="projectDescription" class="form-label">Descrição</label>
+                                        <textarea class="form-control" id="projectDescription" name="description" rows="3" required><?php echo $project['description'] ?></textarea>
+                                        <div class="invalid-feedback">Introduza uma descrição.</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="startDate" class="form-label">Data prevista de início</label>
+                                        <input type="datetime-local" class="form-control" id="startDate" name="start_date" value="<?php echo isset($project['start_date']) ? date('Y-m-d\TH:i', strtotime($project['start_date'])) : '' ?>" required>
+                                        <div class="invalid-feedback">Selecione uma data e hora prevista.</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="endDate" class="form-label">Data prevista de fim</label>
+                                        <input type="datetime-local" class="form-control" id="endDate" name="end_date" value="<?php echo isset($project['end_date']) ? date('Y-m-d\TH:i', strtotime($project['end_date'])) : '' ?>" required>
+                                        <div class="invalid-feedback">Selecione uma data e hora prevista.</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="status" class="form-label">Estado</label>
+                                        <select class="form-select" id="status" name="status" required>
+                                            <?php foreach($statuses as $status): ?>
+                                                <option value="<?php echo $status['id']; ?>" <?php echo ($status['id'] == $project['status_id']) ? 'selected' : '' ?>><?php echo $status['name']; ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <div class="invalid-feedback">Selecione um estado.</div>
+                                    </div>
+                                </form>
                             </div>
-                            <form id="editProject" action="edit-project.php" method="POST" novalidate>
-                                <input type="hidden" name="pid" value="<?php echo htmlspecialchars($pId); ?>">
-                                <div class="mb-3">
-                                    <label for="projectName" class="form-label">Nome do projeto</label>
-                                    <input type="text" class="form-control" id="projectName" name="project_name" value="<?php echo $project['name'] ?>" required>
-                                    <div class="invalid-feedback">Introduza um nome de projeto.</div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <!-- não editável -->
-                                    <label for="assignedToName" class="form-label">Atribuído a</label>
-                                    <input type="text" class="form-control" id="assignedToName" value="<?php echo $assigned_to['nome'] ?>" disabled>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="projectDescription" class="form-label">Descrição</label>
-                                    <textarea class="form-control" id="projectDescription" name="description" rows="3" required><?php echo $project['description'] ?></textarea>
-                                    <div class="invalid-feedback">Introduza uma descrição.</div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="startDate" class="form-label">Data prevista de início</label>
-                                    <input type="datetime-local" class="form-control" id="startDate" name="start_date" value="<?php echo isset($project['start_date']) ? date('Y-m-d\TH:i', strtotime($project['start_date'])) : '' ?>" required>
-                                    <div class="invalid-feedback">Selecione uma data e hora prevista.</div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="endDate" class="form-label">Data prevista de fim</label>
-                                    <input type="datetime-local" class="form-control" id="endDate" name="end_date" value="<?php echo isset($project['end_date']) ? date('Y-m-d\TH:i', strtotime($project['end_date'])) : '' ?>" required>
-                                    <div class="invalid-feedback">Selecione uma data e hora prevista.</div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="status" class="form-label">Estado</label>
-                                    <select class="form-select" id="status" name="status" required>
-                                        <?php foreach($statuses as $status): ?>
-                                            <option value="<?php echo $status['id']; ?>" <?php echo ($status['id'] == $project['status_id']) ? 'selected' : '' ?>><?php echo $status['name']; ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <div class="invalid-feedback">Selecione um estado.</div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="card-footer">
-                            <a href="/projects"><button type="button" class="btn btn-secondary"><i class="fas fa-circle-left"></i> Voltar aos projetos</button></a>
-                            <button onclick="document.getElementById('editProject').submit()" type="button" class="btn btn-info ml-4" ><i class="fas fa-floppy-disk"></i> Guardar alterações</button>
+                            <div class="card-footer">
+                                <a href="/projects"><button type="button" class="btn btn-secondary"><i class="fas fa-circle-left"></i> Voltar aos projetos</button></a>
+                                <button onclick="document.getElementById('editProject').submit()" type="button" class="btn btn-info ml-4" ><i class="fas fa-floppy-disk"></i> Guardar alterações</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        <?php else: ?>
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card border-warning mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title text-warning"><i class="fas fa-exclamation-triangle"></i> Aviso</h5>
-                            <p class="card-text">Não é possível editar um projeto neste momento, pois não há estados de projeto disponíveis (ex. pelo menos um estado tem de existir e de estar ativado).</p>
-                            <a href="/projects/statuses"><button type="button" class="btn btn-warning"><i class="fas fa-clipboard-check"></i> Gerir estados</button></a>
+            <?php else: ?>
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card border-warning mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title text-warning"><i class="fas fa-exclamation-triangle"></i> Aviso</h5>
+                                <p class="card-text">Não é possível editar um projeto neste momento, pois não há estados de projeto disponíveis (ex. pelo menos um estado tem de existir e de estar ativado).</p>
+                                <a href="/projects/statuses"><button type="button" class="btn btn-warning"><i class="fas fa-clipboard-check"></i> Gerir estados</button></a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        <?php endif; ?>
+            <?php endif; ?>
+        </div>
     </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-<?php include  '../error/flash-messages.php'; ?>
+<?php
+include  '../error/flash-messages.php';
+include_once '../layout/footer.php'
+
+?>
 
 </body>
 </html>

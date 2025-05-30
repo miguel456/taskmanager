@@ -20,6 +20,12 @@ if (!is_logged_in()) {
             background-color: #f8f9fa;
             margin: 0;
             padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-content {
+            flex: 1 0 auto;
         }
         .edit-container {
             display: flex;
@@ -42,23 +48,25 @@ if (!is_logged_in()) {
 <?php include_once '../../layout/nav.php' ?>
 
 <!-- Profile Edit Section -->
-<div class="edit-container">
-    <div class="card">
-        <h5 class="card-title text-center"><i class="fas fa-user-edit"></i> Edit Profile</h5>
-        <form action="update-profile.php" method="POST" novalidate>
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?>" required>
-                <div class="invalid-feedback">Please enter a valid username.</div>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>" required>
-                <div class="invalid-feedback">Please enter a valid email address.</div>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-        </form>
-        <button class="btn btn-secondary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
+<div class="main-content">
+    <div class="edit-container">
+        <div class="card">
+            <h5 class="card-title text-center"><i class="fas fa-user-edit"></i> Edit Profile</h5>
+            <form action="update-profile.php" method="POST" novalidate>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?>" required>
+                    <div class="invalid-feedback">Please enter a valid username.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>" required>
+                    <div class="invalid-feedback">Please enter a valid email address.</div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+            </form>
+            <button class="btn btn-secondary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
+        </div>
     </div>
 </div>
 
@@ -99,6 +107,10 @@ if (!is_logged_in()) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<?php include '../../error/flash-messages.php'; ?>
+<?php
+include '../../error/flash-messages.php';
+include '../../layout/footer.php';
+?>
+
 </body>
 </html>

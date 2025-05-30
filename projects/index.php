@@ -11,6 +11,7 @@ $status = new ProjectStatus();
 $statuses = $status->get_status(0, true, true);
 
 
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,68 +26,77 @@ $statuses = $status->get_status(0, true, true);
         .navbar { margin-bottom: 20px; }
         .card { border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .table th, .table td { vertical-align: middle; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-content {
+            flex: 1 0 auto;
+        }
     </style>
 </head>
 <body>
 <?php include_once '../layout/nav.php' ?>
-<div class="container my-4">
-    <div class="card p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0"><i class="fas fa-list"></i> Projetos atuais</h5>
-            <?php
+<div class="main-content">
+    <div class="container my-4">
+        <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Projetos atuais</h5>
+                <?php
 
-            ?>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">
-                <i class="fas fa-plus"></i> Novo projeto
-            </button>
-        </div>
-        <?php if (!empty($projects)): ?>
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Descrição</th>
-                    <th>Data de início</th>
-                    <th>Data de fim prevista</th>
-                    <th>Estado</th>
-                    <th>Acções</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($projects as $project): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($project['name']); ?></td>
-                        <td><?php echo htmlspecialchars($project['description']); ?></td>
-                        <td><?php echo htmlspecialchars($project['start_date']); ?></td>
-                        <td><?php echo htmlspecialchars($project['end_date']); ?></td>
-                        <td>
-                            <?php
-                            $badge = 'secondary';
-                            $status_data = $status->get_status($project['status_id']);
-                            $span_disabled = '<i class="fas fa-triangle-exclamation"></i> '
-
-                            ?>
-                            <span class="badge bg-<?php echo $badge; ?>"><?php echo ($status_data['status']) ? htmlspecialchars($status_data['name']) : $span_disabled . htmlspecialchars($status_data['name']); ?></span>
-                        </td>
-                        <td>
-                            <a href="<?php echo '/projects/edit.php?pid=' . $project['id'] ?>"><button type="button" class="btn btn-warning"><i class="fas fa-pencil"></i></button></a>
-                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-project-id="<?php echo $project['id']; ?>">
-                                <i class="fas fa-dumpster-fire"></i>
-                            </button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <div class="alert alert-warning">
-                <h4 class="alert-title"><i class="fa fa-circle-exclamation"></i><b> Sem projetos disponíveis</b></h4>
-                <p>De momento, ou não existem projetos a apresentar, ou estes não estão disponíveis para si. Experimente criar um; clique no botão azul acima para começar.</p>
+                ?>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">
+                    <i class="fas fa-plus"></i> Novo projeto
+                </button>
             </div>
-        <?php endif; ?>
+            <?php if (!empty($projects)): ?>
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Descrição</th>
+                        <th>Data de início</th>
+                        <th>Data de fim prevista</th>
+                        <th>Estado</th>
+                        <th>Acções</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($projects as $project): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($project['name']); ?></td>
+                            <td><?php echo htmlspecialchars($project['description']); ?></td>
+                            <td><?php echo htmlspecialchars($project['start_date']); ?></td>
+                            <td><?php echo htmlspecialchars($project['end_date']); ?></td>
+                            <td>
+                                <?php
+                                $badge = 'secondary';
+                                $status_data = $status->get_status($project['status_id']);
+                                $span_disabled = '<i class="fas fa-triangle-exclamation"></i> '
+
+                                ?>
+                                <span class="badge bg-<?php echo $badge; ?>"><?php echo ($status_data['status']) ? htmlspecialchars($status_data['name']) : $span_disabled . htmlspecialchars($status_data['name']); ?></span>
+                            </td>
+                            <td>
+                                <a href="<?php echo '/projects/edit.php?pid=' . $project['id'] ?>"><button type="button" class="btn btn-warning"><i class="fas fa-pencil"></i></button></a>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-project-id="<?php echo $project['id']; ?>">
+                                    <i class="fas fa-dumpster-fire"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <div class="alert alert-warning">
+                    <h4 class="alert-title"><i class="fa fa-circle-exclamation"></i><b> Sem projetos disponíveis</b></h4>
+                    <p>De momento, ou não existem projetos a apresentar, ou estes não estão disponíveis para si. Experimente criar um; clique no botão azul acima para começar.</p>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
-
 <!-- Create Project Modal -->
 <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -188,7 +198,12 @@ $statuses = $status->get_status(0, true, true);
     });
 </script>
 
-<?php include  '../error/flash-messages.php'; ?>
+
+<?php
+include  '../error/flash-messages.php';
+include '../layout/footer.php';
+
+?>
 
 </body>
 </html>

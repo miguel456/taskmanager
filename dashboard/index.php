@@ -12,14 +12,17 @@ require_once realpath(__DIR__ . '/../app/bootstrap.php');
     <style>
         body {
             background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+
         .navbar {
             margin-bottom: 20px;
         }
         .dashboard-container {
             display: flex;
+            flex: 1 0 auto;
             justify-content: center;
             align-items: center;
             height: calc(100vh - 56px);
@@ -38,6 +41,7 @@ require_once realpath(__DIR__ . '/../app/bootstrap.php');
         .badge-success {
             background-color: #28a745;
         }
+
     </style>
 </head>
 <body>
@@ -59,6 +63,7 @@ require_once realpath(__DIR__ . '/../app/bootstrap.php');
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <?php
 include '../error/flash-messages.php';
+include '../layout/footer.php';
 
 if (!is_logged_in()) {
     response('/error/access-denied.html', 'Unauthorized', [], 401);
