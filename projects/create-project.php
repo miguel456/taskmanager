@@ -25,25 +25,7 @@ if (empty($status->get_status(0, true, true))) {
     die;
 }
 
-if (!$status->status_exists($status_code)) {
-    flash_message('Dados inválidos', 'O "Estado" selecionado não é válido para o projeto atual ou encontra-se inativo.', 'error');
-}
-
-if (empty($project_name)) {
-    flash_message('Campo obrigatório', 'O nome do projeto é obrigatório.', 'error');
-}
-
-if (empty($description)) {
-    flash_message('Campo obrigatório', 'A descrição do projeto é obrigatória.', 'error');
-}
-// strtotime irá tornar estes dois em FALSE, gerando este erro
-if (empty($start_date) || empty($end_date)) {
-    flash_message('Campo obrigatório', 'A data prevista de inicio e fim é obrigatória e tem de corresponder a um formato válido, ex. dd/mm/yyy.', 'error');
-}
-
-if (empty($status_code) && !$status->status_exists($status_code)) {
-    flash_message('Campo obrigatório', 'O estado do projeto é obrigatório e tem de ser um estado existente e aceitável.');
-}
+validate_project_data($status, $status_code, $project_name, $description, $start_date, $end_date);
 
 if (!bag_has_message()) {
 

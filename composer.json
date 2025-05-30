@@ -19,6 +19,7 @@
       },
       "files": [
           "auth/common.php",
+          "projects/common/project-utils.php",
           "common/database.php"
       ]
   },

@@ -136,7 +136,7 @@ class Project {
         $project_count = $dbc->prepare('SELECT COUNT(*) FROM projects WHERE id = ?');
         $project_count->execute([$project_id]);
 
-        return $project_count->fetch(PDO::FETCH_ASSOC) !== false;
+        return $project_count->fetchColumn() >= 1;
     }
 
     /**

@@ -69,7 +69,7 @@ $statuses = $status->get_status(0, true, true);
                             <span class="badge bg-<?php echo $badge; ?>"><?php echo ($status_data['status']) ? htmlspecialchars($status_data['name']) : $span_disabled . htmlspecialchars($status_data['name']); ?></span>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-warning" disabled><i class="fas fa-pencil"></i></button>
+                            <a href="<?php echo '/projects/edit.php?pid=' . $project['id'] ?>"><button type="button" class="btn btn-warning"><i class="fas fa-pencil"></i></button></a>
                             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-project-id="<?php echo $project['id']; ?>">
                                 <i class="fas fa-dumpster-fire"></i>
                             </button>
@@ -110,13 +110,13 @@ $statuses = $status->get_status(0, true, true);
                         </div>
                         <div class="mb-3">
                             <label for="startDate" class="form-label">Data prevista de início</label>
-                            <input type="date" class="form-control" id="startDate" name="start_date" required>
-                            <div class="invalid-feedback">Selecione uma data prevista.</div>
+                            <input type="datetime-local" class="form-control" id="startDate" name="start_date" required>
+                            <div class="invalid-feedback">Selecione uma data e hora prevista.</div>
                         </div>
                         <div class="mb-3">
                             <label for="endDate" class="form-label">Data prevista de fim</label>
-                            <input type="date" class="form-control" id="endDate" name="end_date" required>
-                            <div class="invalid-feedback">Selecione uma data prevista.</div>
+                            <input type="datetime-local" class="form-control" id="endDate" name="end_date" required>
+                            <div class="invalid-feedback">Selecione uma data e hora prevista.</div>
                         </div>
                         <div class="mb-3">
                             <label for="status" class="form-label">Estado</label>

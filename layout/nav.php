@@ -1,6 +1,11 @@
 <?php
 $current = $_SERVER['REQUEST_URI'];
 $username = htmlspecialchars($_SESSION['username'] ?? 'Utilizador');
+
+if (!is_logged_in()) {
+    response('/error/access-denied.html', 'Unauthorized', [], 401);
+    die;
+}
 ?>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark custom-navbar">
     <div class="container-fluid">
