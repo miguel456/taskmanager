@@ -41,6 +41,21 @@ function get_user(string $email): array
 }
 
 /**
+ * Obter um utilizador através do ID.
+ * @param int $id O id a procurar.
+ * @return array Utilizador, ou FALSE se não houver resultados
+ */
+function get_user_id(int $id): array
+{
+    $pdo = Database::getConnection();
+
+    $stmt = $pdo->prepare('SELECT * FROM user WHERE iduser = ?');
+    $stmt->execute([$id]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+/**
  * Ativa uma conta, definindo o parâmetro estado para 1.
  * @param string $email
  * @param array $errors Lista de erros atual
