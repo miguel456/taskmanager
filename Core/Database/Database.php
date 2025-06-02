@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Core\Database;
+use Exception;
+use PDOException;
 use PDO;
 
 require_once realpath(__DIR__ . '/../../app/bootstrap.php');
