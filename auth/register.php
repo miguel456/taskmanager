@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Database\Database;
+use App\Models\Users\User;
 
 require_once realpath(__DIR__ . '/../app/bootstrap.php');
 
@@ -52,15 +53,14 @@ try {
             die;
         }
 
-        $stmt = $pdo->prepare('INSERT INTO user (iduser, nome, password, estado, email) VALUES (null, ?, ?, ?, ?)');
-        $stmt->execute([
-            $username,
-            password_hash($password, PASSWORD_BCRYPT),
-            0,
-            $email
-        ]);
+        $user = new User(null, $username, $email, $password)->create();
 
-        flash_message('Sucesso!', 'Processo de registo terminado com sucesso. Verifique o seu email para ativar a sua nova conta.');
+        if ($user) {
+            flash_message('Sucesso!', 'Processo de registo terminado com sucesso. Verifique o seu email para ativar a sua nova conta.');
+            response('/login.php');
+            die;
+        }
+
     }
     else
     {
@@ -74,4 +74,8 @@ try {
 
 } catch (PDOException $exception) {
     $errors[] = $exception->getMessage();
+} catch (LogicException $logicException) {
+    $errors[] = $logicException->getMessage();
+} catch (Exception $e) {
+    $errors[] = $e->getMessage();
 }
