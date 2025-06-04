@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\Database;
+namespace App\Core\Database;
 
 class DataLayer extends Database
 {

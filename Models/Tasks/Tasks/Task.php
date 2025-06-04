@@ -3,6 +3,7 @@
 namespace App\Models\Tasks\Tasks;
 
 use App\Core\Database\Database;
+use App\Models\TaskStatus\TaskStatus;
 use DateTime;
 use PDO;
 
@@ -23,18 +24,18 @@ class Task
     private DateTime $updated_at;
 
     public function __construct(
-        string $task_name,
-        int $task_owner,
-        int $task_status_id,
-        string $task_description,
-        string $time_spent,
-        string $task_priority,
-        DateTime $due_date,
-        DateTime $start_date,
-        DateTime $finish_date,
-        DateTime $timestamp,
-        DateTime $created_at,
-        DateTime $updated_at
+        string $task_name = '',
+        int $task_owner = 0,
+        int $task_status_id = 0,
+        string $task_description = "",
+        string $time_spent = "",
+        string $task_priority = "p0",
+        DateTime $due_date = new DateTime(),
+        DateTime $start_date = new DateTime(),
+        DateTime $finish_date = new DateTime(),
+        DateTime $timestamp = new DateTime(),
+        DateTime $created_at = new DateTime(),
+        DateTime $updated_at = new DateTime()
     ) {
         $this->task_name = $task_name;
         $this->task_owner = $task_owner;
@@ -77,12 +78,23 @@ class Task
         return $this->task_owner;
     }
 
-    public function getTaskStatusId(): int
+    /**
+     * Devolve o estado certo da tarefa. Caso não exista, por algum motivo, devolve um array vazio.
+     * @return array
+     */
+    public function getTaskStatus(): array
     {
-        return $this->task_status_id;
+        // relacionamento 1-1
+        $taskStatus = new TaskStatus()->read($this->task_status_id, false, false);
+
+        if (empty($taskStatus)) {
+            return [];
+        }
+
+        return $taskStatus;
     }
 
-    public function setTaskStatusId(int $task_status_id): void
+    public function setTaskStatus(int $task_status_id): void
     {
         $this->task_status_id = $task_status_id;
     }

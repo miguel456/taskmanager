@@ -33,7 +33,7 @@ class Project {
             $this->description = $description;
             $this->start_date = $start_date;
             $this->end_date = $end_date;
-            $this->status_id = ($this->status->status_exists($status_id)) ? $status_id : null;
+            $this->status_id = ($this->status->status_exists($status_id)) ? $status_id : 0;
         }
 
         public function getAssignedTo(): int

@@ -16,11 +16,11 @@ class TaskStatus
     private \DateTime $updated_at;
 
     public function __construct(
-        string $name,
-        string $description,
-        string $status,
-        \DateTime $created_at,
-        \DateTime $updated_at
+        string $name = '',
+        string $description = '',
+        string $status = '',
+        \DateTime $created_at = new \DateTime(),
+        \DateTime $updated_at = new \DateTime()
     ) {
         $this->name = $name;
         $this->description = $description;
@@ -103,7 +103,7 @@ class TaskStatus
      * @param bool $onlyValid Apenas devolver estados válidos?
      * @return array|mixed Resultados
      */
-    public function read(int $taskStatusId, bool $all, bool $onlyValid)
+    public function read(int $taskStatusId, bool $all, bool $onlyValid): mixed
     {
         $conn = $this->conn;
 
