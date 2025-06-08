@@ -199,6 +199,10 @@ function bag_has_message(): bool
     return isset($_SESSION['message_bag']) && count($_SESSION['message_bag']) !== 0;
 }
 
+/**
+ * Verifica se a página foi acedida diretamente.
+ * @return bool Devolve true caso seja acesso direto (ex. pedido feito com qualquer verbo senão o POST)
+ */
 function direct_check(): bool
 {
     return $_SERVER['REQUEST_METHOD'] !== 'POST';

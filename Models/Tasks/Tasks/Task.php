@@ -200,17 +200,18 @@ class Task
     public function create(): bool
     {
         $conn = $this->conn;
-        $stmt = $conn->prepare('INSERT INTO tasks (id, task_name, task_status_id, task_description, task_priority, due_date, start_date, finish_date, time_spent, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $conn->prepare('INSERT INTO tasks (id, task_name, task_owner, task_status_id, task_description, task_priority, due_date, start_date, finish_date, time_spent, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 
         return $stmt->execute([
            null,
            $this->getTaskName(),
-           $this->getTaskStatusId(),
+           $this->getTaskOwner(),
+           $this->task_status_id,
            $this->getTaskDescription(),
            $this->getTaskPriority(),
-           $this->getDueDate(),
-           $this->getStartDate(),
-           $this->getFinishDate(),
+           $this->getDueDate()->format('Y-m-d H:i:s'),
+           $this->getStartDate()->format('Y-m-d H:i:s'),
+           $this->getFinishDate()->format('Y-m-d H:i:s'),
            $this->getTimeSpent(),
            $this->getCreatedAt()->format('Y-m-d H:i:s'),
             $this->getUpdatedAt()->format('Y-m-d H:i:s'),
@@ -221,7 +222,7 @@ class Task
      * Lê todas (ou só uma) as tarefas
      * @param int $id ID da tarefa, caso só precisar de uma
      * @param bool $all Caso queira todas as tarefas
-     * @return array
+     * @return array Um array com a(s) tarefa(s), ou um array vazio caso não exista(m) tarefa(s)
      */
     public function read(int $id = 0, bool $all = true): array
     {
@@ -235,7 +236,24 @@ class Task
         $stmt = $conn->prepare($sql);
         $all ? $stmt->execute() : $stmt->execute([$id]);
 
-        return $all ? $stmt->fetchAll(PDO::FETCH_ASSOC) : $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $all ? $stmt->fetchAll(PDO::FETCH_ASSOC) : $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (is_bool($result)) {
+            return [];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Verifica se a tarefa existe.
+     * Atalho/alternativa para o método read().
+     * @param $taskId
+     * @return bool Sucesso da operação. Devolve True se a tarefa existe.
+     */
+    public function exists($taskId): bool
+    {
+        return !empty($this->read($taskId, false));
     }
 
     /**

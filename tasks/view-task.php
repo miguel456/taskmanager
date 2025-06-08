@@ -1,0 +1,215 @@
+<?php
+
+require_once realpath(__DIR__ . '/../vendor/autoload.php');
+
+use App\Models\Tasks\Tasks\Task;
+use App\Models\TaskStatus\TaskStatus;
+
+$curPage = '/tasks';
+$taskId = $_GET['task'];
+
+if (empty($taskId)) {
+    flash_message('Tarefa não encontrada', 'A tarefa que está a tentar visualizar não existe, ou uma tarefa não foi fornecida.', 'error');
+    response($curPage);
+    die;
+}
+
+$tasks = new Task();
+$task = $tasks->read($taskId, false);
+
+$taskStatus = new TaskStatus();
+
+if (empty($task)) {
+
+    flash_message('Tarefa não encontrada', 'A tarefa que está a tentar visualizar não existe, ou uma tarefa não foi fornecida.', 'error');
+    response($curPage);
+    die();
+
+}
+
+$singleTaskStatus = $taskStatus->read($task['task_status_id'], false, true);
+
+if (!empty($singleTaskStatus)) {
+    $task['rel']['task_status_id'] = $singleTaskStatus;
+} else {
+    $task['rel']['task_status_id'] = null;
+}
+
+
+
+$formStatus = true;
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<?php include_once '../layout/head.php' ?>
+<body>
+<?php include_once '../layout/nav.php' ?>
+
+<div class="container mt-5">
+    <!-- Placeholder Illustration -->
+    <div class="text-center mb-4">
+        <img src="/img/task.svg" alt="Task Illustration Placeholder" class="img-fluid" width="250" height="150">
+    </div>
+
+    <!-- Task Details Row -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Vista detalhada da tarefa</h5>
+                    <small class="text-muted">Pode editar todos os detalhes da tarefa aqui.</small>
+                </div>
+                <form action="manage-task.php" method="post">
+                    <input type="hidden" name="update" value="1">
+                    <input type="hidden" name="taskId" value="<?= $task['id'] ?>">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Left Column: Task Info -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="task_name" class="form-label">Título da tarefa</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-square-pen"></i></span>
+                                        <input type="text" class="form-control" id="task_name" name="task_name" value="<?= htmlspecialchars($task['task_name']) ?>">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="task_description" class="form-label">Descrição</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-heading"></i></span>
+                                        <textarea class="form-control" id="task_description" name="task_description"><?= htmlspecialchars($task['task_description']) ?></textarea>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="task_priority" class="form-label">Priority</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-regular fa-circle-question"></i></span>
+                                        <select id="task_priority" name="task_priority" class="form-select">
+                                            <?php for ($i = 0; $i <= 4; $i++): ?>
+                                                <option value="P<?= $i ?>" <?= $task['task_priority'] === "P$i" ? 'selected' : '' ?>>P<?= $i ?></option>
+                                            <?php endfor; ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="task_status_id" class="form-label">Estado atual</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-clipboard"></i></span>
+                                        <select class="form-control" name="task_status_id" id="task_status_id">
+                                            <option value="<?= htmlspecialchars($task['rel']['task_status_id']['id']) ?>"><?= htmlspecialchars($task['rel']['task_status_id']['name']) ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="start_date" class="form-label">Data de início</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-regular fa-calendar-check"></i></span>
+                                        <input type="datetime-local" class="form-control" id="start_date" name="start_date" value="<?= date('Y-m-d\TH:i', strtotime($task['start_date'])) ?>">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="due_date" class="form-label">Data limite de conclusão</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-regular fa-clock"></i></span>
+                                        <input type="datetime-local" class="form-control" id="due_date" name="due_date" value="<?= date('Y-m-d\TH:i', strtotime($task['due_date'])) ?>">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="finish_date" class="form-label">Data de conclusão</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-calendar-days"></i></span>
+                                        <input type="datetime-local" class="form-control" id="finish_date" name="finish_date" value="<?= date('Y-m-d\TH:i', strtotime($task['finish_date'])) ?>">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="created_at" class="form-label">Data de criação</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-regular fa-calendar-plus"></i></span>
+                                        <input type="text" class="form-control" id="created_at" name="created_at" value="<?= htmlspecialchars($task['created_at']) ?>" readonly disabled>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="updated_at" class="form-label">Data de atualização</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-regular fa-calendar-plus"></i></span>
+                                        <input type="text" class="form-control" id="updated_at" name="updated_at" value="<?= htmlspecialchars($task['updated_at']) ?>" readonly disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row mt-2 mb-2">
+                            <label for="task_owner" class="form-label">Utilizador atribuído</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-user-plus"></i></span>
+                                <input type="text" class="form-control" id="task_owner" name="task_owner" value="<?= htmlspecialchars($task['task_owner']) ?>">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-end">
+                        <button type="button" class="btn btn-info" onclick="location.href='/tasks'">
+                            <i class="fa-solid fa-circle-left"></i> Voltar
+                        </button>
+
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-solid fa-circle-check"></i> Guardar alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5 mb-5">
+        <div class="row mb-3">
+            <div class="col-auto">
+                <img src="/img/avatars/avatar-image-04.png" alt="User" class="rounded-circle" width="48" height="48">
+            </div>
+            <div class="col">
+                <div class="bg-light p-3 rounded">
+                    <strong>João Atualizado</strong> <span class="text-muted small">• 2025-06-08 14:23</span>
+                    <p class="mb-0">Isto é um comentário de exemplo. O sistema de comentários ainda não foi implementado.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-auto">
+                <img src="/img/avatars/avatar-image-04.png" alt="User" class="rounded-circle" width="48" height="48">
+            </div>
+            <div class="col">
+                <div class="bg-light p-3 rounded">
+                    <strong>João Atualizado v2</strong> <span class="text-muted small">• 2025-06-08 15:23</span>
+                    <p class="mb-0">Isto é outro comentário de exemplo. O sistema de comentários ainda não foi implementado.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto">
+                <img src="/img/avatars/avatar-image-06.png" alt="Your Profile" class="rounded-circle" width="48" height="48">
+            </div>
+            <div class="col">
+                <form action="comments/add-comment.php" method="post">
+                    <div class="mb-2">
+                        <textarea class="form-control" name="comment_content" rows="3" placeholder="Escrever um comentário..."></textarea>
+                    </div>
+                    <input type="hidden" name="task_id" value="<?= htmlspecialchars($taskId) ?>">
+                    <button disabled type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Enviar (Postar como <?php echo $_SESSION['username'] ?>)</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<?php
+include '../layout/footer.php';
+include  '../error/flash-messages.php';
+?>
+</body>
+</html>

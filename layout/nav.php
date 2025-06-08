@@ -38,6 +38,23 @@ if (!is_logged_in()) {
                         </li>
                     </ul>
                 </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle<?php if (str_contains($current, '/tasks') && !str_contains($current, '/tasks/statuses')) echo ' active'; ?>" href="#" id="tasksDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-clipboard-check"></i> O meu trabalho
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="tasksDropdown">
+                        <li>
+                            <a class="dropdown-item<?php if ($current === '/tasks' || $current === '/tasks/') echo ' active'; ?>" href="/tasks">
+                                <i class="fas fa-tasks"></i> Gerir tarefas
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item<?php if (str_contains($current, '/tasks/statuses')) echo ' active'; ?>" href="/tasks/statuses">
+                                <i class="fas fa-flag"></i> Gerir estados
+                            </a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
             <div class="d-flex align-items-center gap-2">
                 <span class="btn btn-outline-light btn-sm user-btn mb-0" tabindex="-1" style="pointer-events: none;">
