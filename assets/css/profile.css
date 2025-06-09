@@ -1,0 +1,24 @@
+body {
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.main-content {
+    flex: 1 0 auto;
+}
+.edit-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 56px);
+}
+.card {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}

@@ -15,27 +15,7 @@ $statuses = $status->get_status(0, true, true);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskManager | Gestão de Projetos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body { background-color: #f8f9fa; }
-        .navbar { margin-bottom: 20px; }
-        .card { border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .table th, .table td { vertical-align: middle; }
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .main-content {
-            flex: 1 0 auto;
-        }
-    </style>
-</head>
+<?php include_once '../layout/head.php' ?>
 <body>
 <?php include_once '../layout/nav.php' ?>
 <div class="main-content">
@@ -163,8 +143,7 @@ $statuses = $status->get_status(0, true, true);
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -200,8 +179,8 @@ $statuses = $status->get_status(0, true, true);
 
 
 <?php
-include  '../error/flash-messages.php';
 include '../layout/footer.php';
+include  '../error/flash-messages.php';
 
 ?>
 

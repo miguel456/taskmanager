@@ -11,6 +11,14 @@
     <?php if(str_contains($_SERVER['REQUEST_URI'], '/tasks/statuses')): ?>
         <link rel="stylesheet" href="/assets/css/task-status.css">
     <?php endif; ?>
+
+    <?php if(str_contains($_SERVER['REQUEST_URI'], '/projects/statuses')): ?>
+        <link rel="stylesheet" href="/assets/css/project-status.css">
+    <?php endif; ?>
+
+    <?php if(str_contains($_SERVER['REQUEST_URI'], 'profile.php')): ?>
+        <link rel="stylesheet" href="/assets/css/profile.css">
+    <?php endif; ?>
     <style>
         body { background-color: #f8f9fa; }
         .navbar { margin-bottom: 20px; }
