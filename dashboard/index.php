@@ -3,47 +3,8 @@ require_once realpath(__DIR__ . '/../app/bootstrap.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+<?php include_once '../layout/head.php' ?>
 
-        .navbar {
-            margin-bottom: 20px;
-        }
-        .dashboard-container {
-            display: flex;
-            flex: 1 0 auto;
-            justify-content: center;
-            align-items: center;
-            height: calc(100vh - 56px);
-        }
-        .card {
-            width: 100%;
-            max-width: 400px;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .card-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-        }
-        .badge-success {
-            background-color: #28a745;
-        }
-
-    </style>
-</head>
 <body>
 <?php include_once '../layout/nav.php' ?>
 <div class="dashboard-container">
@@ -59,17 +20,10 @@ require_once realpath(__DIR__ . '/../app/bootstrap.php');
         <p><strong>Status:</strong> <span class="badge badge-success">Active</span></p>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <?php
-include '../error/flash-messages.php';
 include '../layout/footer.php';
-
-if (!is_logged_in()) {
-    response('/error/access-denied.html', 'Unauthorized', [], 401);
-    die;
-}
-
+include '../error/flash-messages.php';
 ?>
 </body>
 </html>

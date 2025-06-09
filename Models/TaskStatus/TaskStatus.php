@@ -125,7 +125,7 @@ class TaskStatus
                 $stmt = $conn->prepare('SELECT * FROM task_status WHERE id = ?');
             }
 
-            $stmt->execute([$$taskStatusId]);
+            $stmt->execute([$taskStatusId]);
         }
 
         return ($all) ? $stmt->fetchAll(PDO::FETCH_ASSOC) : $stmt->fetch(PDO::FETCH_ASSOC);

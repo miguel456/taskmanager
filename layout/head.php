@@ -1,9 +1,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskManager | O seu trabalho</title>
+    <title><?= config('AppName') . ' | ' . resolvePageTitle($_SERVER['REQUEST_URI']) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/footer-custom.css">
+    <?php if(str_contains($_SERVER['REQUEST_URI'], 'dashboard')): ?>
+        <link rel="stylesheet" href="/assets/css/dashboard.css">
+    <?php endif; ?>
     <style>
         body { background-color: #f8f9fa; }
         .navbar { margin-bottom: 20px; }
