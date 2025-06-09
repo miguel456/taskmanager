@@ -21,13 +21,12 @@ class Config
      */
     public function __construct()
     {
-        $this->loadedConfigs[0] = parse_ini_file(realpath(__DIR__ . '/../../' . $this->appConfig));
+        $this->loadedConfigs[0] = parse_ini_file(realpath(__DIR__ . '/../../' . $this->appConfig), true);
 
         if (!$this->loadedConfigs[0]) {
             throw new \Exception('Configuração da aplicação inválida. Impossível continuar.');
         }
-
-        $this->loadedConfigs[1] = json_decode(realpath(__DIR__ . '/../../' . $this->navbarConfig), true, 512, JSON_THROW_ON_ERROR);
+        $this->loadedConfigs[1] = json_decode(file_get_contents(realpath(__DIR__ . '/../../' . $this->navbarConfig)), true);
     }
 
     /**
