@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\Config\Config;
 use App\Models\Users\User;
 
 require_once realpath(__DIR__ . '/../app/bootstrap.php');
@@ -206,4 +207,24 @@ function bag_has_message(): bool
 function direct_check(): bool
 {
     return $_SERVER['REQUEST_METHOD'] !== 'POST';
+}
+
+/**
+ * Devolve o título da página correto com base no $path.
+ * @param string $path Caminho da página atual
+ * @return string Título correto
+ */
+function resolvePageTitle(string $path): string
+{
+    return new Config()->resolveNavbarTitle($path);
+}
+
+/**
+ * Devolve um elemento $key da configuração da aplicação
+ * @param string $key O elemento a devolver.
+ * @return string O elemento da configuração
+ */
+function config(string $key): string
+{
+    return new Config()->getAppConfig()[$key];
 }
