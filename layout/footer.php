@@ -2,6 +2,7 @@
     <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
         <span>&copy; <?php echo date('Y'); ?> Miguel Nogueira</span>
         <span>Licenciado sob a <a href="https://www.gnu.org/licenses/agpl-3.0.html" class="text-info" target="_blank" rel="noopener">AGPL v3.</a></span>
+        <!-- removing this license text is a violation of the GNU AGPL v3 license agreement -->
     </div>
 </footer>
 

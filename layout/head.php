@@ -7,6 +7,10 @@
     <?php if(str_contains($_SERVER['REQUEST_URI'], 'dashboard')): ?>
         <link rel="stylesheet" href="/assets/css/dashboard.css">
     <?php endif; ?>
+
+    <?php if(str_contains($_SERVER['REQUEST_URI'], '/tasks/statuses')): ?>
+        <link rel="stylesheet" href="/assets/css/task-status.css">
+    <?php endif; ?>
     <style>
         body { background-color: #f8f9fa; }
         .navbar { margin-bottom: 20px; }

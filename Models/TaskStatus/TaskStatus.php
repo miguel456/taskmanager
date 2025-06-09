@@ -10,7 +10,7 @@ class TaskStatus
 {
     private string $name;
     private string $description;
-    private string $status;
+    private int $status;
     private $conn;
     private \DateTime $created_at;
     private \DateTime $updated_at;
@@ -18,7 +18,7 @@ class TaskStatus
     public function __construct(
         string $name = '',
         string $description = '',
-        string $status = '',
+        int $status = 1,
         \DateTime $created_at = new \DateTime(),
         \DateTime $updated_at = new \DateTime()
     ) {
@@ -91,8 +91,8 @@ class TaskStatus
            $this->getName(),
            $this->getDescription(),
            $this->getStatus(),
-           $this->getCreatedAt(),
-           $this->getUpdatedAt()
+           $this->getCreatedAt()->format('Y:m:d H:i:s'),
+           $this->getUpdatedAt()->format('Y:m:d H:i:s')
         ]);
     }
 
@@ -130,6 +130,16 @@ class TaskStatus
 
         return ($all) ? $stmt->fetchAll(PDO::FETCH_ASSOC) : $stmt->fetch(PDO::FETCH_ASSOC);
 
+    }
+
+    /**
+     * Verifica se um estado de tarefa existe com base no método read.
+     * @param $taskId int ID da tarefa.
+     * @return bool Estado da operação.
+     */
+    public function exists(int $taskId): bool
+    {
+        return !empty($this->read($taskId, false, false));
     }
 
     /**

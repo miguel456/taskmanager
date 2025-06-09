@@ -4,9 +4,9 @@ require_once realpath(__DIR__ . '/../app/bootstrap.php');
 <!DOCTYPE html>
 <html lang="en">
 <?php include_once '../layout/head.php' ?>
-
 <body>
 <?php include_once '../layout/nav.php' ?>
+
 <div class="dashboard-container">
     <div class="card">
         <?php if (isset($_GET['message'])): ?>

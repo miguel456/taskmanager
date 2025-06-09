@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" packagePrefix="App" />
       <sourceFolder url="file://$MODULE_DIR$/Core/Middleware" isTestSource="false" packagePrefix="App\Core\Middleware\" />
       <sourceFolder url="file://$MODULE_DIR$/Core/Spec" isTestSource="false" packagePrefix="App\Core\Spec\" />
+      <sourceFolder url="file://$MODULE_DIR$/Core/Config" isTestSource="false" packagePrefix="App\Core\Config\" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-mbstring" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/var-dumper" />
