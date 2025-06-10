@@ -179,8 +179,8 @@ $statuses = $status->get_status(0, true, true);
 
 
 <?php
-include '../layout/footer.php';
-include  '../error/flash-messages.php';
+include_once '../layout/footer.php';
+include_once  '../error/flash-messages.php';
 
 ?>
 
