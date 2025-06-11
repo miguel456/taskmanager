@@ -5,7 +5,8 @@
       "tasks": "Gestão de tarefas",
       "dashboard": "Visão geral",
       "statuses": "Gestão de estados",
-      "profile": "Perfil"
+      "profile": "Perfil",
+      "login.php": "Autenticação"
     },
     "default": "Sem título"
   }

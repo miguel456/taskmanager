@@ -12,6 +12,9 @@
         <link rel="stylesheet" href="/assets/css/task-status.css">
     <?php endif; ?>
 
+    <?php if(str_contains($_SERVER['REQUEST_URI'], 'login.php')): ?>
+    <link rel="stylesheet" href="/assets/css/authlogin.css">
+    <?php endif; ?>
 
     <?php if(str_contains($_SERVER['REQUEST_URI'], 'profile.php')): ?>
         <link rel="stylesheet" href="/assets/css/profile.css">
