@@ -6,7 +6,9 @@
       "dashboard": "Visão geral",
       "statuses": "Gestão de estados",
       "profile": "Perfil",
-      "login.php": "Autenticação"
+      "login.php": "Autenticação",
+      "registo.php": "Nova conta",
+      "forgot-password.php": "Recuperação de conta"
     },
     "default": "Sem título"
   }
