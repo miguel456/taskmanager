@@ -27,11 +27,15 @@ Este documento será atualizado ao longo do desenvolvimento da aplicação, bem 
 
 ## Funcionalidades previstas em lançamentos futuros:
 
-- Sistema de notificações integrado
+- Sistema de notificações ~~integrado~~ simples
+- Notificações para tarefas vencidas ou perto da data de vencimento;
+
+
+As seguintes funcionalidades não farão parte do "Deliverable" final devido à falta de tempo:
+  
   -  Notificações pela interface de utilizador;
   - PNs (Push notifications) através do browser ou serviço designado;
   - Notificações por email
-- Notificações para tarefas vencidas ou perto da data de vencimento;
 - Função de convidar novos utilizadores a uma equipa diretamente
 - Refatoração do código para uma estrutura mais amigável.
 - Sistema compreensivo de logging interno
