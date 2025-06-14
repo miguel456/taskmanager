@@ -12,6 +12,7 @@ if (!is_logged_in()) {
 
 $pid = $_POST['pid'];
 $project_name = $_POST['project_name'];
+$assignedTo = $_POST['assignedTo'];
 $description = $_POST['description'];
 $start_date = date('Y-m-d H:i:s', strtotime($_POST['start_date']));
 $end_date = date('Y-m-d H:i:s', strtotime($_POST['end_date']));
@@ -32,11 +33,12 @@ if (empty($status->get_status(0, true, true))) {
     die;
 }
 
-validate_project_data($status, $status_code, $project_name, $description, $start_date, $end_date);
+validate_project_data($status, $assignedTo, $status_code, $project_name, $description, $start_date, $end_date);
 
 if (!bag_has_message()) {
 
     $toUpdate = [
+        'assigned_to' => $assignedTo,
         'name' => $project_name,
         'description' => $description,
         'start_date' => $start_date,

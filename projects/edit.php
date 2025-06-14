@@ -2,11 +2,16 @@
 
 use App\Models\Projects\Project;
 use App\Models\ProjectStatus\ProjectStatus;
+use App\Models\Users\User;
 
 require_once realpath(__DIR__ . '/../app/bootstrap.php');
 
 $pId = $_GET['pid'];
+
 $projects = new Project();
+
+$user = new User();
+$users = $user->getAllUsers(true);
 
 if (empty($pId) || !$projects->project_exists($pId)) {
     flash_message('Projeto desconhecido', 'Não é possível editar um projeto desconhecido.');
@@ -72,7 +77,14 @@ $statuses = new ProjectStatus()->get_status(0, true, true);
                                     <div class="mb-3">
                                         <!-- não editável -->
                                         <label for="assignedToName" class="form-label">Atribuído a</label>
-                                        <input type="text" class="form-control" id="assignedToName" value="<?php echo $assigned_to['nome'] ?>" disabled>
+                                        <select name="assignedTo" class="form-control" id="assignedToName">
+                                            <?php foreach($users as $user): ?>
+
+                                            <option <?= ($project['assigned_to'] == $user['iduser']) ? 'selected' : '' ?> value="<?= $user['iduser'] ?>"><?= $user['nome'] ?></option>
+
+                                            <?php endforeach; ?>
+                                        </select>
+
                                     </div>
 
                                     <div class="mb-3">

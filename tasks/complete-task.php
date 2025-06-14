@@ -17,7 +17,7 @@ $completingTaskStatusId = 4;
 
 try {
     if ($task->update($taskId, ['task_status_id' => $completingTaskStatusId])) {
-        flash_message('Yay!', 'Tarefa concluída!');
+        flash_message('Tarefa concluída.', 'Bom trabalho!');
     } else {
         flash_message('Erro Interno', 'Não foi possível marcar a tarefa como concluída.', 'error');
     }

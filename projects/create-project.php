@@ -10,6 +10,7 @@ if (!is_logged_in()) {
     die;
 }
 
+$assignedTo = $_POST['assigned_to'];
 $project_name = $_POST['project_name'];
 $description = $_POST['description'];
 $start_date = date('Y-m-d H:i:s', strtotime($_POST['start_date']));
@@ -25,13 +26,13 @@ if (empty($status->get_status(0, true, true))) {
     die;
 }
 
-validate_project_data($status, $status_code, $project_name, $description, $start_date, $end_date);
+validate_project_data($status, $assignedTo, $status_code, $project_name, $description, $start_date, $end_date);
 
 if (!bag_has_message()) {
 
     $projectId = $project->setName($project_name)
         ->setDescription($description)
-        ->setAssignedTo($_SESSION['id'])
+        ->setAssignedTo($assignedTo)
         ->setStartDate($start_date)
         ->setEndDate($end_date)
         ->setStatusId($status_code)

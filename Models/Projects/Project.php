@@ -171,8 +171,9 @@ class Project {
             $stmt->execute([$project_id]);
         }
         $resultSet = ($all) ? $stmt->fetchAll(PDO::FETCH_ASSOC) : $stmt->fetch(PDO::FETCH_ASSOC);
+        $single = !$all;
 
-        $this->injectRelationships($resultSet);
+        $this->injectRelationships($resultSet, $single);
         return $resultSet;
     }
 
@@ -201,6 +202,7 @@ class Project {
     public function update_project(int $project_id, array $fields): bool
     {
         $fillable = [
+            'assigned_to',
             'name',
             'description',
             'start_date',
@@ -214,12 +216,14 @@ class Project {
     /**
      * Injeta relacionamentos do Modelo nos dados devolvidos.
      * @param array $resultSet Referência aos resultados
+     * @param bool $single Declara que tipo de objeto estamos a injetar: vários, ou só um?
      * @return void Nada porque os resultados originais são alterados.
      */
-    protected function injectRelationships(array &$resultSet): void
+    protected function injectRelationships(array &$resultSet, bool $single): void
     {
         $user = new User();
-        if (count($resultSet) > 1 && array_filter($resultSet, 'is_array') === $resultSet) {
+
+        if (!$single) {
             foreach ($resultSet as &$item) {
                 $curId = $item['assigned_to'];
                 $curUser = $user->getUserById($curId);
@@ -231,8 +235,7 @@ class Project {
                     throw new LogicException('Erro fatal de validação de integridade referêncial: o utilizador atribuído não existe.');
                 }
             }
-        }
-        elseif ($resultSet == 1) {
+        } else {
             $curId = $resultSet['assigned_to'];
             $curUser = $user->getUserById($curId);
 

@@ -60,7 +60,6 @@ $statuses = $status->get_status(0, true, true);
                             </td>
                             <td>
                                 <?php
-                                // Example: expects $project['assignee_avatar'] (URL) and $project['assignee_name']
                                 $avatar = !empty($project['rel']['assigned_to']['avatar_url']) ? $project['rel']['assigned_to']['avatar_url'] : '/assets/default-avatar.png';
                                 $assignee = !empty($project['rel']['assigned_to']['nome']) ? $project['rel']['assigned_to']['nome'] : 'N/D';
                                 ?>
