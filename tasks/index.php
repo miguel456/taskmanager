@@ -14,8 +14,14 @@ if (!is_logged_in()) {
 // TODO: Filtrar com base no projeto ativo em sessão
 $taskModel = new Task();
 $userModel = new User();
+$projectModel = new App\Models\Projects\Project();
 $status = new TaskStatus();
+
 $statuses = $status->read(0, true, true);
+$projects = $projectModel->get_project(0, true);
+
+
+$activeProject = $projectModel->getActiveProject();
 
 $tasks = $taskModel->read();
 $users = $userModel->getAllUsers(true);
@@ -51,9 +57,10 @@ $users = $userModel->getAllUsers(true);
                         <th></th>
                         <th>Nome</th>
                         <th>Descrição</th>
+                        <th>Projeto</th>
                         <th>Estado</th>
                         <th>Data limite</th>
-                        <th>Acções</th>
+                        <th>Ações</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -64,6 +71,7 @@ $users = $userModel->getAllUsers(true);
                             </td>
                             <td><?php echo htmlspecialchars($task['task_name']); ?></td>
                             <td><?php echo htmlspecialchars($task['task_description']); ?></td>
+                            <td><b><?= htmlspecialchars($task['rel']['project_id']['name'] ?? 'Nenhum atribuído') ?></b></td>
                             <td><?php echo htmlspecialchars($task['rel']['task_status_id']['name']); ?></td>
                             <td><?php echo htmlspecialchars($task['due_date']); ?></td>
                             <td>
@@ -128,6 +136,22 @@ $users = $userModel->getAllUsers(true);
                                   <?php endforeach; ?>
                               </select>
                           </div>
+
+                          <div class="mb-3">
+                              <label for="project_id" class="form-label">Projeto atribuído</label>
+                              <select class="form-control" name="project_id" id="project_id">
+                                  <option disabled>Selecione um projeto</option>
+                                  <option value="0">Nenhum projeto</option>
+                                  <?php foreach($projects as $project): ?>
+                                      <option value="<?= $project['id'] ?>"
+                                          <?php if (!empty($activeProject) && $activeProject['project_id'] == $project['id']) echo 'selected'; ?>>
+                                          <?= $project['name'] ?>
+                                          <?php if (!empty($activeProject) && $activeProject['project_id'] == $project['id']) echo ' (Projeto selecionado)'; ?>
+                                      </option>
+                                  <?php endforeach; ?>
+                              </select>
+                          </div>
+
                           <div class="mb-3">
                               <label for="taskDescription" class="form-label">Descrição</label>
                               <textarea class="form-control" id="taskDescription" name="task_description" rows="2"></textarea>
@@ -205,6 +229,10 @@ $users = $userModel->getAllUsers(true);
                             <div class="mb-3">
                                 <i class="fas fa-flag me-2"></i>
                                 <strong>Estado/Fase:</strong> <?php echo $task['rel']['task_status_id']['name'] ?>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fas fa-project-diagram me-2"></i>
+                                <strong>Projeto atribuído:</strong> <?php echo htmlspecialchars($task['rel']['project_id']['name'] ?? 'Nenhum atribuído') ?>
                             </div>
                             <div class="mb-3">
                                 <i class="fas fa-exclamation-circle me-2"></i>

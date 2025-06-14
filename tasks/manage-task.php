@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Projects\Project;
 use App\Models\Tasks\Tasks\Task;
 use App\Models\TaskStatus\TaskStatus;
 use App\Models\Users\User;
@@ -25,6 +26,7 @@ if (isset($_POST['update']) && $_POST['update'] == 1 || $_POST['update'] == 0) {
 $taskName = trim($_POST['task_name'] ?? '');
 $assignedUser = trim($_POST['task_owner'] ?? '');
 $taskStatusId = trim($_POST['task_status_id'] ?? '');
+$project = trim($_POST['project_id']);
 $taskDescription = trim($_POST['task_description'] ?? '');
 $taskPriority = trim($_POST['task_priority'] ?? '');
 $dueDate = trim($_POST['due_date'] ?? '');
@@ -40,6 +42,7 @@ $backTo = ($update) ? '/tasks/view-task.php?task=' . $taskId : '/tasks';
 $taskStatuses = new TaskStatus();
 $user = new User();
 $task = new Task();
+$projectModel = new Project();
 
 if ($dueDate !== '') {
     $d = DateTime::createFromFormat('Y-m-d\TH:i', $dueDate);
@@ -66,6 +69,7 @@ if (
     $taskStatusId === '' ||
     $taskDescription === '' ||
     $taskPriority === '' ||
+    !isset($_POST['project_id']) ||
     ($update && ($finishDate === '' && $startDate === '')) ||
     $dueDate === '' && !in_array($dueDate, $allowedPriorities)
 ) {
@@ -88,6 +92,12 @@ if (empty($taskStatuses->read($taskStatusId, false, true))) {
     die;
 }
 
+if ((int) $project !== 0 && !$projectModel->project_exists($project)) {
+    flash_message('Erro de validação!', 'O projeto atribuído não existe! Alternativamente, pode selecionar "Nenhum projeto".', 'error');
+    response($backTo);
+    die;
+}
+
 if ($update && !$task->exists($taskId)) {
     flash_message('Erro de validação!', 'A tarefa a atualizar não existe.', 'error');
     response($backTo);
@@ -96,7 +106,7 @@ if ($update && !$task->exists($taskId)) {
 
 if (!$update) {
 
-    $task = new Task($taskName, $assignedUser, $taskStatusId, $taskDescription, "", $taskPriority, $d);
+    $task = new Task($taskName, $assignedUser, $taskStatusId, $project, $taskDescription, "", $taskPriority, $d);
 
     if ($task->create()) {
         flash_message('Tarefa criada.', 'Boa sorte!');
@@ -114,6 +124,8 @@ $updateData = [
     'task_name' => $taskName,
     'task_owner' => $assignedUser,
     'task_status_id' => $taskStatusId,
+    // O campo na db é nullable, mas não podemos inserir 0 porque não existe projeto 0
+    'project_id' => ($project == 0) ? null : $project,
     'task_description' => $taskDescription,
     'task_priority' => $taskPriority,
     'due_date' => $dueDate,

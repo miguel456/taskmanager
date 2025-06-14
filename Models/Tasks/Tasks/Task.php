@@ -3,6 +3,7 @@
 namespace App\Models\Tasks\Tasks;
 
 use App\Core\Database\Database;
+use App\Models\Projects\Project;
 use App\Models\TaskStatus\TaskStatus;
 use App\Models\Users\User;
 use DateTime;
@@ -15,6 +16,8 @@ class Task
     private string $task_name;
     private int $task_owner;
     private int $task_status_id;
+
+    private ?int $project;
     private string $task_description;
     private string $time_spent;
     private string $task_priority;
@@ -26,12 +29,13 @@ class Task
     private DateTime $updated_at;
 
     public function __construct(
-        string $task_name = '',
-        int $task_owner = 0,
-        int $task_status_id = 0,
-        string $task_description = "",
-        string $time_spent = "",
-        string $task_priority = "p0",
+        string   $task_name = '',
+        int      $task_owner = 0,
+        int      $task_status_id = 0,
+        ?int $project = null,
+        string   $task_description = "",
+        string   $time_spent = "",
+        string   $task_priority = "p0",
         DateTime $due_date = new DateTime(),
         DateTime $start_date = new DateTime(),
         DateTime $finish_date = new DateTime(),
@@ -42,6 +46,7 @@ class Task
         $this->task_name = $task_name;
         $this->task_owner = $task_owner;
         $this->task_status_id = $task_status_id;
+        $this->project = $project;
         $this->task_description = $task_description;
         $this->time_spent = $time_spent;
         $this->task_priority = $task_priority;
@@ -99,6 +104,19 @@ class Task
     public function setTaskStatus(int $task_status_id): void
     {
         $this->task_status_id = $task_status_id;
+    }
+
+    /**
+     * @param int|null $project
+     */
+    public function setProject(?int $project): void
+    {
+        $this->project = $project;
+    }
+
+    public function getProject(): int
+    {
+        return $this->project;
     }
 
     public function getTaskDescription(): string
@@ -202,13 +220,16 @@ class Task
     public function create(): bool
     {
         $conn = $this->conn;
-        $stmt = $conn->prepare('INSERT INTO tasks (id, task_name, task_owner, task_status_id, task_description, task_priority, due_date, start_date, finish_date, time_spent, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $conn->prepare('INSERT INTO tasks (id, task_name, task_owner, task_status_id, project_id, task_description, task_priority, due_date, start_date, finish_date, time_spent, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+
+        $optionalProjectId = ($this->getProject() == 0) ? null : $this->getProject();
 
         return $stmt->execute([
            null,
            $this->getTaskName(),
            $this->getTaskOwner(),
            $this->task_status_id,
+           $optionalProjectId,
            $this->getTaskDescription(),
            $this->getTaskPriority(),
            $this->getDueDate()->format('Y-m-d H:i:s'),
@@ -274,6 +295,7 @@ class Task
             'task_name',
             'task_owner',
             'task_status_id',
+            'project_id',
             'task_description',
             'task_priority',
             'due_date',
@@ -306,13 +328,14 @@ class Task
     {
         $user = new User();
         $taskStatus = new TaskStatus();
+        $project = new Project();
 
         if (!$single) {
             foreach ($resultSet as &$item) {
-                $this->addRelationships($item, $user, $taskStatus);
+                $this->addRelationships($item, $user, $project, $taskStatus);
             }
         } else {
-            $this->addRelationships($resultSet, $user, $taskStatus);
+            $this->addRelationships($resultSet, $user, $project, $taskStatus);
         }
 
     }
@@ -323,7 +346,7 @@ class Task
      * @param User $user Instância dos utilizadores.
      * @param TaskStatus $taskStatus Instância dos estados de tarefa.
      */
-    private function addRelationships(array &$item, User $user, TaskStatus $taskStatus): void
+    private function addRelationships(array &$item, User $user, Project $project, TaskStatus $taskStatus): void
     {
         $curTaskOwner = $item['task_owner'];
         $curTaskStatus = $item['task_status_id'];
@@ -331,11 +354,16 @@ class Task
         $curUser = $user->getUserById($curTaskOwner);
         $curStatus = $taskStatus->exists($curTaskStatus);
 
+        // nullable; pode ser nulo da base de dados. Caso for, definir para zero (tarefas flutuantes).
+        $curProject = $item['project_id'] ?? 0;
+
+
         if (!empty($curUser) && $curStatus) {
             $item['rel']['task_owner'] = $curUser;
             $item['rel']['task_status_id'] = $taskStatus->read($curTaskStatus, false, false);
+            $item['rel']['project_id'] = ($curProject == 0) ? [] : $project->get_project($curProject);
         } else {
-            throw new LogicException('Erro fatal de validação de integridade referêncial: o utilizador atribuído não existe.');
+            throw new LogicException('Erro fatal de validação de integridade referêncial: o utilizador ou o estado atribuído não existe.');
         }
     }
 }

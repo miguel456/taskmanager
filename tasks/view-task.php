@@ -2,6 +2,7 @@
 
 require_once realpath(__DIR__ . '/../vendor/autoload.php');
 
+use App\Models\Projects\Project;
 use App\Models\Tasks\Tasks\Task;
 use App\Models\TaskStatus\TaskStatus;
 use App\Models\Users\User;
@@ -17,6 +18,7 @@ if (empty($taskId)) {
 
 $tasks = new Task();
 $user = new User();
+$project = new Project();
 
 $task = $tasks->read($taskId, false);
 
@@ -32,6 +34,8 @@ if (empty($task)) {
 
 $singleTaskStatus = $taskStatus->read($task['task_status_id'], false, true);
 $users = $user->getAllUsers(true);
+$projects = $project->get_project(0, true);
+
 
 // TODO: Permissões futuras
 $formStatus = true;
@@ -97,6 +101,22 @@ $formStatus = true;
                                         <span class="input-group-text"><i class="fa-solid fa-clipboard"></i></span>
                                         <select class="form-control" name="task_status_id" id="task_status_id">
                                             <option value="<?= htmlspecialchars($task['rel']['task_status_id']['id']) ?>"><?= htmlspecialchars($task['rel']['task_status_id']['name']) ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="project_id" class="form-label">Projeto atribuído</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-diagram-project"></i></span>
+                                        <select class="form-control" name="project_id" id="project_id">
+                                            <option disabled>Selecione um projeto</option>
+                                            <option value="0" <?= empty($task['rel']['project_id']) ? 'selected' : '' ?>>Nenhum projeto</option>
+                                            <?php foreach($projects as $project): ?>
+                                                <option value="<?= $project['id'] ?>" <?= (!empty($task['rel']['project_id']) && $task['rel']['project_id']['id'] == $project['id']) ? 'selected' : '' ?>>
+                                                    <?= $project['name'] ?>
+                                                </option>
+                                            <?php endforeach; ?>
                                         </select>
                                     </div>
                                 </div>
