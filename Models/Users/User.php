@@ -26,7 +26,7 @@ class User
     private ?int $iduser;
     private DateTime $data_criacao;
 
-    private $conn;
+    private PDO $conn;
 
 
     /**
@@ -110,6 +110,26 @@ class User
         }
 
         return [];
+    }
+
+    /**
+     * Devolve todos os utilizadores registados.
+     * @param bool $activeOnly Só devolver utilizadores válidos?
+     * @return array Lista de utilizadores
+     */
+    function getAllUsers(bool $activeOnly = false): array
+    {
+        $pdo = $this->conn;
+        $query = 'SELECT * FROM user';
+
+        if ($activeOnly) {
+            $query .= ' WHERE estado = 1';
+        }
+
+        $stmt = $pdo->prepare($query);
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
