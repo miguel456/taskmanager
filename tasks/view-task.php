@@ -4,6 +4,7 @@ require_once realpath(__DIR__ . '/../vendor/autoload.php');
 
 use App\Models\Tasks\Tasks\Task;
 use App\Models\TaskStatus\TaskStatus;
+use App\Models\Users\User;
 
 $curPage = '/tasks';
 $taskId = $_GET['task'];
@@ -15,6 +16,8 @@ if (empty($taskId)) {
 }
 
 $tasks = new Task();
+$user = new User();
+
 $task = $tasks->read($taskId, false);
 
 $taskStatus = new TaskStatus();
@@ -28,15 +31,9 @@ if (empty($task)) {
 }
 
 $singleTaskStatus = $taskStatus->read($task['task_status_id'], false, true);
+$users = $user->getAllUsers(true);
 
-if (!empty($singleTaskStatus)) {
-    $task['rel']['task_status_id'] = $singleTaskStatus;
-} else {
-    $task['rel']['task_status_id'] = null;
-}
-
-
-
+// TODO: Permissões futuras
 $formStatus = true;
 
 ?>
@@ -148,7 +145,11 @@ $formStatus = true;
                             <label for="task_owner" class="form-label">Utilizador atribuído</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa-solid fa-user-plus"></i></span>
-                                <input type="text" class="form-control" id="task_owner" name="task_owner" value="<?= htmlspecialchars($task['task_owner']) ?>">
+                                <select class="form-control" name="task_owner" id="task_owner">
+                                    <?php foreach($users as $user): ?>
+                                        <option <?= ($task['rel']['task_owner']['iduser'] == $user['iduser']) ? 'selected' : '' ?> value="<?= $user['iduser'] ?>"><?= $user['nome'] ?></option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                         </div>
                     </div>

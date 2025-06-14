@@ -18,19 +18,7 @@ $status = new TaskStatus();
 $statuses = $status->read(0, true, true);
 
 $tasks = $taskModel->read();
-
-
-
-if (!empty($tasks)) {
-    // TODO: Mover/abstraír esta lógica
-    // adicionar os respetivos relacionamentos às $tasks originais
-    foreach ($tasks as &$task) {
-        $taskStatus = $status->read($task['task_status_id'], false, false);
-        $task['rel']['task_status'] = empty($taskStatus) ? [] : $taskStatus;
-        $task['rel']['task_owner'] = $userModel->getUserById($task['task_owner']);
-    }
-    unset($task);
-}
+$users = $userModel->getAllUsers(true);
 
 ?>
 <!DOCTYPE html>
@@ -93,11 +81,11 @@ if (!empty($tasks)) {
                     <?php foreach ($tasks as $task): ?>
                         <tr>
                             <td>
-                                <img src="https://ui-avatars.com/api/?name=User&background=dee2e6&color=495057&size=32" alt="User" class="rounded-circle" width="32" height="32">
+                                <img id="taskOwnerProfileId<?= $task['rel']['task_owner']['iduser'] ?>" src="https://ui-avatars.com/api/?name=<?= $task['rel']['task_owner']['nome'] ?>&background=dee2e6&color=495057&size=32" alt="User" class="rounded-circle" width="32" height="32">
                             </td>
                             <td><?php echo htmlspecialchars($task['task_name']); ?></td>
                             <td><?php echo htmlspecialchars($task['task_description']); ?></td>
-                            <td><?php echo htmlspecialchars($task['rel']['task_status']['name']); ?></td>
+                            <td><?php echo htmlspecialchars($task['rel']['task_status_id']['name']); ?></td>
                             <td><?php echo htmlspecialchars($task['due_date']); ?></td>
                             <td>
                                 <form action="complete-task.php" method="POST">
@@ -147,7 +135,11 @@ if (!empty($tasks)) {
                           </div>
                           <div class="mb-3">
                               <label for="assignedUser" class="form-label">Utilizador atribuído</label>
-                              <input type="text" class="form-control" id="assignedUser" name="task_owner" placeholder="ID ou nome do utilizador">
+                              <select class="form-control" name="task_owner" id="assignedUser">
+                                  <?php foreach($users as $user): ?>
+                                  <option value="<?= $user['iduser'] ?>"><?= $user['nome'] ?></option>
+                                  <?php endforeach; ?>
+                              </select>
                           </div>
                           <div class="mb-3">
                               <label for="taskStatus" class="form-label">Estado</label>
@@ -233,7 +225,7 @@ if (!empty($tasks)) {
                             </div>
                             <div class="mb-3">
                                 <i class="fas fa-flag me-2"></i>
-                                <strong>Estado/Fase:</strong> <?php echo $task['rel']['task_status']['name'] ?>
+                                <strong>Estado/Fase:</strong> <?php echo $task['rel']['task_status_id']['name'] ?>
                             </div>
                             <div class="mb-3">
                                 <i class="fas fa-exclamation-circle me-2"></i>
@@ -312,6 +304,11 @@ include  '../error/flash-messages.php';
     tippy('#view-button-task-<?php echo $task['id'] ?>', {
         content: 'Ver mais detalhes',
     });
+    // TODO: possibility of double IDs; double-check
+    tippy('#taskOwnerProfileId<?= $task['rel']['task_owner']['iduser'] ?>', {
+       content: '<?= $task['rel']['task_owner']['nome'] ?>'
+    });
+
     <?php endforeach; ?>
 
 </script>

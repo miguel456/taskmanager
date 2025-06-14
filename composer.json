@@ -18,7 +18,8 @@
         "App\\Core\\Database\\": "Core/Database",
         "App\\Core\\Middleware\\": "Core/Middleware",
         "App\\Core\\Spec\\": "Core/Spec",
-        "App\\Core\\Config\\": "Core/Config"
+        "App\\Core\\Config\\": "Core/Config",
+        "App\\Models\\Traits\\": "Models/Traits"
       },
       "files": [
           "auth/common.php",

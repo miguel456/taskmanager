@@ -4,7 +4,9 @@ namespace App\Models\Tasks\Tasks;
 
 use App\Core\Database\Database;
 use App\Models\TaskStatus\TaskStatus;
+use App\Models\Users\User;
 use DateTime;
+use LogicException;
 use PDO;
 
 class Task
@@ -237,11 +239,14 @@ class Task
         $all ? $stmt->execute() : $stmt->execute([$id]);
 
         $result = $all ? $stmt->fetchAll(PDO::FETCH_ASSOC) : $stmt->fetch(PDO::FETCH_ASSOC);
+        $single = !$all;
 
         if (is_bool($result)) {
             return [];
         }
 
+
+        $this->injectRelationships($result, $single);
         return $result;
     }
 
@@ -289,5 +294,48 @@ class Task
     public function delete(int $task_id): bool
     {
         return $this->conn->prepare('DELETE FROM tasks WHERE id = ?')->execute([$task_id]);
+    }
+
+    /**
+     * Injeta relacionamentos do Modelo nos dados devolvidos.
+     * @param array $resultSet Referência aos resultados
+     * @param bool $single Declara que tipo de objeto estamos a injetar: vários, ou só um?
+     * @return void Nada porque os resultados originais são alterados.
+     */
+    protected function injectRelationships(array &$resultSet, bool $single): void
+    {
+        $user = new User();
+        $taskStatus = new TaskStatus();
+
+        if (!$single) {
+            foreach ($resultSet as &$item) {
+                $this->addRelationships($item, $user, $taskStatus);
+            }
+        } else {
+            $this->addRelationships($resultSet, $user, $taskStatus);
+        }
+
+    }
+
+    /**
+     * Adiciona os relacionamentos ao $item, por referência. Não deve ser usado diretamente.
+     * @param array $item O $item a injetar. Ter em atenção que só é possível injetar um $item de cada vez.
+     * @param User $user Instância dos utilizadores.
+     * @param TaskStatus $taskStatus Instância dos estados de tarefa.
+     */
+    private function addRelationships(array &$item, User $user, TaskStatus $taskStatus): void
+    {
+        $curTaskOwner = $item['task_owner'];
+        $curTaskStatus = $item['task_status_id'];
+
+        $curUser = $user->getUserById($curTaskOwner);
+        $curStatus = $taskStatus->exists($curTaskStatus);
+
+        if (!empty($curUser) && $curStatus) {
+            $item['rel']['task_owner'] = $curUser;
+            $item['rel']['task_status_id'] = $taskStatus->read($curTaskStatus, false, false);
+        } else {
+            throw new LogicException('Erro fatal de validação de integridade referêncial: o utilizador atribuído não existe.');
+        }
     }
 }
