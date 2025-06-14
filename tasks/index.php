@@ -28,28 +28,7 @@ $users = $userModel->getAllUsers(true);
 <?php include_once '../layout/nav.php' ?>
 <div class="main-content">
     <div class="container my-4">
-
-        <!-- Project Info Section -->
-        <?php
-        // Placeholder for project data from session
-        $project = [
-            'title' => $_SESSION['active_project']['title'] ?? 'Projeto não selecionado',
-            'description' => $_SESSION['active_project']['description'] ?? 'Selecione um projeto para começar a trabalhar; não vai conseguir criar tarefas novas sem selecionar um projeto.'
-        ];
-        ?>
-        <div class="card mb-4 border-primary shadow-sm" style="background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 100%);">
-            <div class="card-body">
-                <h3 class="card-title text-primary mb-1">
-                    <i class="fas fa-folder-open me-2"></i>
-                    <?php echo htmlspecialchars($project['title']); ?>
-                </h3>
-                <p class="card-text text-secondary fs-5 mb-0">
-                    <?php echo htmlspecialchars($project['description']); ?>
-                </p>
-                <span class="badge bg-primary mt-2">Projeto ativo</span>
-            </div>
-        </div>
-
+        <?php include_once '../layout/project-status-bar.php' ?>
         <div class="card p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="mb-0"><i class="fas fa-list"></i> O seu trabalho</h5>

@@ -3,6 +3,7 @@ namespace App\Models\Projects;
 
 require_once realpath(__DIR__ . '/../../app/bootstrap.php');
 
+use App\Core\Database\DataLayer;
 use App\Models\ProjectStatus\ProjectStatus;
 use App\Core\Database\Database;
 use App\Models\Users\User;
@@ -115,6 +116,7 @@ class Project {
             return $this;
         }
 
+
     /**
      * Guarda os registos na base de dados, criando um Projeto novo.
      * @return array [resultado da operação, último ID]
@@ -210,9 +212,15 @@ class Project {
             'status_id'
         ];
 
-        return update_table_data('projects', ['id', $project_id], $fillable, $fields);
+        // atualizar sessão com projeto atualizado
+        if (!empty($this->getActiveProject())) {
+            $this->activateProject($project_id);
+        }
+
+        return DataLayer::updateTableData('projects', ['id', $project_id], $fillable, $fields);
     }
 
+    // TODO: Mover esta lógica para um traço
     /**
      * Injeta relacionamentos do Modelo nos dados devolvidos.
      * @param array $resultSet Referência aos resultados
@@ -222,31 +230,87 @@ class Project {
     protected function injectRelationships(array &$resultSet, bool $single): void
     {
         $user = new User();
+        $projectStatus = new ProjectStatus();
 
         if (!$single) {
             foreach ($resultSet as &$item) {
                 $curId = $item['assigned_to'];
                 $curUser = $user->getUserById($curId);
 
-                if (!empty($curUser)) {
+                $curStatusId = $item['status_id'];
+                $curStatus = $projectStatus->get_status($curStatusId, false, false);
+
+                if (!empty($curUser) && !empty($curStatus)) {
                     $item['rel']['assigned_to'] = $curUser;
+                    $item['rel']['status_id'] = $curStatus;
                 }
                 else {
-                    throw new LogicException('Erro fatal de validação de integridade referêncial: o utilizador atribuído não existe.');
+                    throw new LogicException('Erro fatal de validação de integridade referêncial: o utilizador ou o estado atribuído não existe.');
                 }
             }
         } else {
             $curId = $resultSet['assigned_to'];
             $curUser = $user->getUserById($curId);
 
-            if (!empty($curUser)) {
+            $curStatusId = $resultSet['status_id'];
+            $curStatus = $projectStatus->get_status($curStatusId, false, false);
+
+            if (!empty($curUser) && !empty($curStatus)) {
                 $resultSet['rel']['assigned_to'] = $curUser;
+                $resultSet['rel']['status_id'] = $curStatus;
             }
             else {
-                throw new LogicException('Erro fatal de validação de integridade referêncial: o utilizador atribuído não existe.');
+                throw new LogicException('Erro fatal de validação de integridade referêncial: o utilizador ou o estado atribuído não existe.');
             }
         }
 
+    }
+
+    /**
+     * Ativa o projeto, guardando os detalhes na sessão. Por padrão, novas tarefas serão criadas neste projeto.
+     * Os dados são sempre escritos por cima, então não é necessário "desativar" um projeto antes.
+     * @param int $projectId O ID do projeto a ativar
+     * @return void
+     */
+    public function activateProject(int $projectId): void
+    {
+        $project = $this->get_project($projectId);
+
+        // Sempre inicializar os dados
+        if (!isset($_SESSION['active_project'])) {
+            $_SESSION['active_project'] = [];
+        }
+
+        $_SESSION['active_project']['title'] = $project['name'];
+        $_SESSION['active_project']['description'] = $project['description'];
+        $_SESSION['active_project']['deadline'] = $project['end_date'];
+        $_SESSION['active_project']['status_name'] = $project['rel']['status_id']['name'];
+
+        $_SESSION['active_project']['project_id'] = $project['id'];
+
+    }
+
+    /**
+     * Devolve o projeto atualmente ativo.
+     * @return array
+     */
+    public function getActiveProject(): array
+    {
+        if (isset($_SESSION['active_project']))
+        {
+            return $_SESSION['active_project'];
+        }
+
+        return [];
+    }
+
+    /**
+     * Limpa o projeto atualmente ativo.
+     * @return void
+     */
+    public function clearActiveProject(): void
+    {
+        unset($_SESSION['active_project']);
     }
 
 }

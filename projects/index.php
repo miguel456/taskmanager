@@ -6,7 +6,10 @@ use App\Models\ProjectStatus\ProjectStatus;
 require_once realpath(__DIR__ . '/../app/bootstrap.php');
 
 
-$projects = new Project()->get_project(0, true);
+$projectsInstance = new Project();
+$projects = $projectsInstance->get_project(0, true);
+
+
 $status = new ProjectStatus();
 $statuses = $status->get_status(0, true, true);
 
@@ -20,6 +23,7 @@ $statuses = $status->get_status(0, true, true);
 <?php include_once '../layout/nav.php' ?>
 <div class="main-content">
     <div class="container my-4">
+        <?php include_once '../layout/project-status-bar.php' ?>
         <div class="card p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="mb-0"><i class="fas fa-list"></i> Projetos atuais</h5>
@@ -67,8 +71,9 @@ $statuses = $status->get_status(0, true, true);
                                 <span class="ms-2"><?php echo htmlspecialchars($assignee); ?></span>
                             </td>
                             <td>
-                                <a href="<?php echo '/projects/edit.php?pid=' . $project['id'] ?>"><button type="button" class="btn btn-warning"><i class="fas fa-pencil"></i></button></a>
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-project-id="<?php echo $project['id']; ?>">
+                                <a class="project-activation" href="/projects/select.php?pid=<?= $project['id'] ?>"><button id="activateProjectId<?= $project['id'] ?>" type="button" class="btn btn-secondary"><i class="fa-solid fa-gears"></i></button></a>
+                                <a class="project-edit" href="<?php echo '/projects/edit.php?pid=' . $project['id'] ?>"><button type="button" class="btn btn-warning"><i class="fas fa-pencil"></i></button></a>
+                                <button type="button" class="btn btn-danger project-delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-project-id="<?php echo $project['id']; ?>">
                                     <i class="fas fa-dumpster-fire"></i>
                                 </button>
                             </td>
@@ -174,6 +179,11 @@ $statuses = $status->get_status(0, true, true);
     </div>
 </div>
 
+<?php
+include_once '../layout/footer.php';
+include_once  '../error/flash-messages.php';
+?>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var confirmDeleteModal = document.getElementById('confirmDeleteModal');
@@ -183,14 +193,20 @@ $statuses = $status->get_status(0, true, true);
             document.getElementById('deleteProjectId').value = projectId;
         });
     });
+
+    tippy(".project-activation", {
+        content: 'Ativar/desativar projeto'
+    });
+
+    tippy(".project-delete", {
+        content: 'Apagar projeto'
+    });
+
+    tippy(".project-edit", {
+        content: 'Editar projeto'
+    });
 </script>
 
-
-<?php
-include_once '../layout/footer.php';
-include_once  '../error/flash-messages.php';
-
-?>
 
 </body>
 </html>
