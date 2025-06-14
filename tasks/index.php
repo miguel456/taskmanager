@@ -100,7 +100,10 @@ if (!empty($tasks)) {
                             <td><?php echo htmlspecialchars($task['rel']['task_status']['name']); ?></td>
                             <td><?php echo htmlspecialchars($task['due_date']); ?></td>
                             <td>
-                                <button class="btn btn-success" type="button" id="task-finish-task-<?php echo $task['id'] ?>"><i class="fa-solid fa-circle-check"></i></button>
+                                <form action="complete-task.php" method="POST">
+                                    <input type="hidden" name="taskId" value="<?= $task['id'] ?>">
+                                    <button class="btn btn-success" type="submit" id="task-finish-task-<?php echo $task['id'] ?>"><i class="fa-solid fa-circle-check"></i></button>
+                                </form>
                                 <button class="btn btn-info" type="button" id="view-button-task-<?php echo $task['id'] ?>"
                                         data-bs-toggle="modal"
                                         data-bs-target="#taskDetailsModalTask<?php echo $task['id'] ?>">
