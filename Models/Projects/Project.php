@@ -5,6 +5,8 @@ require_once realpath(__DIR__ . '/../../app/bootstrap.php');
 
 use App\Models\ProjectStatus\ProjectStatus;
 use App\Core\Database\Database;
+use App\Models\Users\User;
+use LogicException;
 use PDO;
 
 /**
@@ -36,9 +38,20 @@ class Project {
             $this->status_id = ($this->status->status_exists($status_id)) ? $status_id : 0;
         }
 
-        public function getAssignedTo(): int
+    /**
+     * Devolve o utilizador associado ao projeto.
+     * @return array Array com o utilizador associado ao projeto.
+     * @throws LogicException Caso ocorra erro de integridade referêncial
+     */
+        public function getAssignedTo(): array
         {
-            return $this->assigned_to;
+            $user = new User();
+            if ($user->getUserById($this->assigned_to)) {
+                return $user->getUserById($this->assigned_to);
+            }
+
+            // nunca deverá acontecer
+            throw new LogicException('Erro fatal de validação da integridade referêncial: o utilizador da chave estrangeira não existe!');
         }
 
         public function getName(): string
@@ -157,9 +170,10 @@ class Project {
             $stmt = $db->prepare('SELECT * FROM projects WHERE id = ?');
             $stmt->execute([$project_id]);
         }
+        $resultSet = ($all) ? $stmt->fetchAll(PDO::FETCH_ASSOC) : $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return ($all) ? $stmt->fetchAll(PDO::FETCH_ASSOC) : $stmt->fetch(PDO::FETCH_ASSOC);
-
+        $this->injectRelationships($resultSet);
+        return $resultSet;
     }
 
     /**
@@ -196,4 +210,40 @@ class Project {
 
         return update_table_data('projects', ['id', $project_id], $fillable, $fields);
     }
+
+    /**
+     * Injeta relacionamentos do Modelo nos dados devolvidos.
+     * @param array $resultSet Referência aos resultados
+     * @return void Nada porque os resultados originais são alterados.
+     */
+    protected function injectRelationships(array &$resultSet): void
+    {
+        $user = new User();
+        if (count($resultSet) > 1 && array_filter($resultSet, 'is_array') === $resultSet) {
+            foreach ($resultSet as &$item) {
+                $curId = $item['assigned_to'];
+                $curUser = $user->getUserById($curId);
+
+                if (!empty($curUser)) {
+                    $item['rel']['assigned_to'] = $curUser;
+                }
+                else {
+                    throw new LogicException('Erro fatal de validação de integridade referêncial: o utilizador atribuído não existe.');
+                }
+            }
+        }
+        elseif ($resultSet == 1) {
+            $curId = $resultSet['assigned_to'];
+            $curUser = $user->getUserById($curId);
+
+            if (!empty($curUser)) {
+                $resultSet['rel']['assigned_to'] = $curUser;
+            }
+            else {
+                throw new LogicException('Erro fatal de validação de integridade referêncial: o utilizador atribuído não existe.');
+            }
+        }
+
+    }
+
 }

@@ -39,7 +39,8 @@ $statuses = $status->get_status(0, true, true);
                         <th>Data de início</th>
                         <th>Data de fim prevista</th>
                         <th>Estado</th>
-                        <th>Acções</th>
+                        <th>Responsável</th>
+                        <th>Ações</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -53,10 +54,18 @@ $statuses = $status->get_status(0, true, true);
                                 <?php
                                 $badge = 'secondary';
                                 $status_data = $status->get_status($project['status_id']);
-                                $span_disabled = '<i class="fas fa-triangle-exclamation"></i> '
-
+                                $span_disabled = '<i class="fas fa-triangle-exclamation"></i> ';
                                 ?>
                                 <span class="badge bg-<?php echo $badge; ?>"><?php echo ($status_data['status']) ? htmlspecialchars($status_data['name']) : $span_disabled . htmlspecialchars($status_data['name']); ?></span>
+                            </td>
+                            <td>
+                                <?php
+                                // Example: expects $project['assignee_avatar'] (URL) and $project['assignee_name']
+                                $avatar = !empty($project['rel']['assigned_to']['avatar_url']) ? $project['rel']['assigned_to']['avatar_url'] : '/assets/default-avatar.png';
+                                $assignee = !empty($project['rel']['assigned_to']['nome']) ? $project['rel']['assigned_to']['nome'] : 'N/D';
+                                ?>
+                                <img src="<?php echo htmlspecialchars($avatar); ?>" alt="Avatar" class="rounded-circle" width="32" height="32" title="<?php echo htmlspecialchars($assignee); ?>">
+                                <span class="ms-2"><?php echo htmlspecialchars($assignee); ?></span>
                             </td>
                             <td>
                                 <a href="<?php echo '/projects/edit.php?pid=' . $project['id'] ?>"><button type="button" class="btn btn-warning"><i class="fas fa-pencil"></i></button></a>
