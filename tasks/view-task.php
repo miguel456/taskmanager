@@ -2,6 +2,7 @@
 
 require_once realpath(__DIR__ . '/../vendor/autoload.php');
 
+use App\Models\Comment;
 use App\Models\Projects\Project;
 use App\Models\Tasks\Tasks\Task;
 use App\Models\TaskStatus\TaskStatus;
@@ -36,6 +37,12 @@ $singleTaskStatus = $taskStatus->read($task['task_status_id'], false, true);
 $users = $user->getAllUsers(true);
 $projects = $project->get_project(0, true);
 
+
+try {
+    $comments = Comment::getTaskComments($taskId);
+} catch (Exception $e) {
+    flash_message('Comentários indisponíveis', 'Não foi possível obter comentários para esta tarefa (' . $e->getMessage() . ').', 'error');
+}
 
 // TODO: Permissões futuras
 $formStatus = true;
@@ -188,28 +195,25 @@ $formStatus = true;
     </div>
 
     <div class="row mt-5 mb-5">
-        <div class="row mb-3">
-            <div class="col-auto">
-                <img src="/img/avatars/avatar-image-04.png" alt="User" class="rounded-circle" width="48" height="48">
+        <?php if (empty($comments)): ?>
+            <div class="alert alert-warning text-center" role="alert">
+                Nenhum comentário ainda. Sê o primeiro a comentar nesta tarefa!
             </div>
-            <div class="col">
-                <div class="bg-light p-3 rounded">
-                    <strong>João Atualizado</strong> <span class="text-muted small">• 2025-06-08 14:23</span>
-                    <p class="mb-0">Isto é um comentário de exemplo. O sistema de comentários ainda não foi implementado.</p>
+        <?php else: ?>
+            <?php foreach($comments as $comment): ?>
+                <div class="row mb-3">
+                    <div class="col-auto">
+                        <img src="/img/avatars/avatar-image-04.png" alt="User" class="rounded-circle" width="48" height="48">
+                    </div>
+                    <div class="col">
+                        <div class="bg-light p-3 rounded">
+                            <strong><?= $comment->getCommenterId() ?></strong> <span class="text-muted small">• <?= $comment->getCreatedAt()->format('d/m/Y H:i') ?></span>
+                            <p class="mb-0"><?= htmlspecialchars($comment->getContent()) ?></p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-auto">
-                <img src="/img/avatars/avatar-image-04.png" alt="User" class="rounded-circle" width="48" height="48">
-            </div>
-            <div class="col">
-                <div class="bg-light p-3 rounded">
-                    <strong>João Atualizado v2</strong> <span class="text-muted small">• 2025-06-08 15:23</span>
-                    <p class="mb-0">Isto é outro comentário de exemplo. O sistema de comentários ainda não foi implementado.</p>
-                </div>
-            </div>
-        </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
         <div class="row">
             <div class="col-auto">
                 <img src="/img/avatars/avatar-image-06.png" alt="Your Profile" class="rounded-circle" width="48" height="48">
