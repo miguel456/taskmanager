@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Core\Database\DataLayer;
 use App\Core\Exceptions\CommentNotFoundException;
 use App\Models\Users\User;
+use DateTime;
 use Exception;
 use http\Exception\InvalidArgumentException;
 use PDO;
@@ -20,8 +21,8 @@ class Comment
     private string $content;
     private ?string $type;
     private ?int $typeId;
-    private \DateTime $createdAt;
-    private \DateTime $updatedAt;
+    private DateTime $createdAt;
+    private DateTime $updatedAt;
 
     private PDO $conn;
 
@@ -60,9 +61,8 @@ class Comment
         $this->setContent($content);
         $this->setType($type);
         $this->setTypeId($typeId);
-        // Isto causa que, a cada F5, as datas dos comentários sejam as atuais e não as guardadas em DB / TODO: resolver
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
+        $this->setCreatedAt(new DateTime());
+        $this->setUpdatedAt(new DateTime());
         $this->conn = DataLayer::getConnection();
     }
 
@@ -85,7 +85,12 @@ class Comment
                 'content' => $comment['content']
             ];
 
-            $comments[] = self::create($payload)->setTypeId($comment['commentable_id'])->setType($comment['commentable_type'])->setId($comment['id']);
+            $comments[] = self::create($payload)
+                ->setTypeId($comment['commentable_id'])
+                ->setType($comment['commentable_type'])
+                ->setId($comment['id'])
+                ->setCreatedAt(DateTime::createFromFormat("Y-m-d H:i:s", $comment['created_at']))
+                ->setUpdatedAt(DateTime::createFromFormat("Y-m-d H:i:s", $comment['updated_at']));
         }
 
         return $comments;
@@ -203,12 +208,12 @@ class Comment
         return $this;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): Comment
+    public function setCreatedAt(DateTime $createdAt): Comment
     {
         $this->createdAt = $createdAt;
         return $this;
@@ -219,7 +224,7 @@ class Comment
         return $this->updatedAt->format('Y-m-d H:i:s');
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): Comment
+    public function setUpdatedAt(DateTime $updatedAt): Comment
     {
         $this->updatedAt = $updatedAt;
         return $this;
@@ -397,7 +402,7 @@ class Comment
 
     /**
      * Devolve todos os comentários relacionados a projetos
-     * @param int|null $id Opcionlmente, o ID do projeto para o qual obter comentários
+     * @param int|null $id Opcionalmente, o ID do projeto para o qual obter comentários
      * @return array Um array de objetos de comentário
      * @throws Exception
      */
