@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Comment;
 use App\Models\Projects\Project;
 use App\Models\ProjectStatus\ProjectStatus;
 use App\Models\Users\User;
@@ -18,6 +19,17 @@ if (empty($pId) || !$projects->project_exists($pId)) {
     response('/projects');
     die;
 }
+
+$commentable = "project";
+$commentableId = $pId;
+
+try {
+    $comments = Comment::getProjectComments($pId);
+} catch (Exception $e) {
+    flash_message('Comentários indisponíveis', 'Não foi possível obter comentários para este projeto (' . $e->getMessage() . ').', 'error');
+    $comments = [];
+}
+
 
 $project = $projects->get_project($pId);
 $assigned_to = get_user_id($project['assigned_to']);
@@ -113,6 +125,7 @@ $statuses = new ProjectStatus()->get_status(0, true, true);
                     </div>
                 </div>
             <?php endif; ?>
+            <?php include_once '../layout/widgets/comments.widget.php' ?>
         </div>
     </div>
 

@@ -8,7 +8,6 @@ use App\Models\Users\User;
 use Exception;
 use http\Exception\InvalidArgumentException;
 use PDO;
-use Symfony\Component\VarDumper\Cloner\Data;
 
 /**
  * Modelo com design melhorado, usado por Comentários de Tarefa e Comentários de Projeto. Tem algumas alterações pontuais para ser compatível com os outros modelos.
@@ -410,7 +409,7 @@ class Comment
         $params = ['project'];
 
         if (!is_null($id)) {
-            $sql .= ' AND commentables.commentable_id = ?';
+            $sql .= ' AND cb.commentable_id = ?';
             $params[] = $id;
         }
 

@@ -3,7 +3,7 @@
 use App\Core\Exceptions\CommentNotFoundException;
 use App\Models\Comment;
 
-require_once realpath(__DIR__ . '/../../vendor/autoload.php');
+require_once realpath(__DIR__ . '/../vendor/autoload.php');
 
 $commentId = $_POST['comment_id'];
 $commentable = $_POST['commentable'];
