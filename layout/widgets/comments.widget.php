@@ -38,7 +38,7 @@
         <div class="col">
             <form action="/comments/add-comment.php" method="post">
                 <input type="hidden" name="commentableId" value="<?= $commentableId ?>">
-                <input type="hidden" name="commentable" value="task">
+                <input type="hidden" name="commentable" value="<?= $commentable ?>">
                 <div class="mb-2">
                     <textarea class="form-control" name="comment_content" rows="3" placeholder="Escrever um comentário..."></textarea>
                 </div>
