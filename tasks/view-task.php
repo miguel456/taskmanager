@@ -207,7 +207,7 @@ $formStatus = true;
                     </div>
                     <div class="col">
                         <div class="bg-light p-3 rounded">
-                            <strong><?= $comment->getCommenterId() ?></strong> <span class="text-muted small">• <?= $comment->getCreatedAt()->format('d/m/Y H:i') ?></span>
+                            <strong><?= $comment->commenter['nome'] ?></strong> <span class="text-muted small">• <?= $comment->getCreatedAt()->format('d/m/Y H:i') ?></span>
                             <p class="mb-0"><?= htmlspecialchars($comment->getContent()) ?></p>
                         </div>
                     </div>

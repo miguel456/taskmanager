@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Core\Database\DataLayer;
 use App\Core\Exceptions\CommentNotFoundException;
+use App\Models\Users\User;
 use Exception;
 use http\Exception\InvalidArgumentException;
 use PDO;
@@ -39,6 +40,14 @@ class Comment
      * @var array Mantém uma lista, atualizada dinâmicamente, de campos que foram sujeitos a alteração após a criação do objeto, ditando assim que campos serão atualizados pelo update().
      */
     protected array $dirty = [];
+
+
+    /**
+     * @var array|string[] Mantém uma lista de chaves estrangeiras a carregar e métodos associados
+     */
+    protected array $loadRelationships = [
+        'commenter' => 'getForeignCommenter'
+    ];
 
     public function __construct(
         int $commenterId,
@@ -99,6 +108,15 @@ class Comment
     public function getCommenterId(): int
     {
         return $this->commenterId;
+    }
+
+    /**
+     * Carrega o relacionamento específico da chave estrangeira
+     * @return array
+     */
+    protected function getForeignCommenter(): array
+    {
+        return new User()->getUserById($this->getCommenterId());
     }
 
     public function setCommenterId(int $commenterId): Comment
@@ -208,7 +226,7 @@ class Comment
     }
 
 
-    /** Cria uma instância do comentário
+    /** Fábrica de comentários - fabrica comentários (:
      * @return Comment O novo comentário
      */
     private static function create($payload): Comment
@@ -388,7 +406,7 @@ class Comment
     {
         $conn = DataLayer::getConnection();
 
-        $sql = 'SELECT comments.*, commentables.commentable_type, commentables.commentable_id FROM comments JOIN commentables ON commentables.commentable_id = comments.id WHERE commentables.commentable_type = ?';
+        $sql = 'SELECT c.*, cb.commentable_type, cb.commentable_id FROM comments c JOIN commentables cb on c.id = cb.comment_id WHERE cb.commentable_type = ?';
         $params = ['project'];
 
         if (!is_null($id)) {
@@ -396,10 +414,29 @@ class Comment
             $params[] = $id;
         }
 
+        $sql .= ' ORDER BY c.created_at DESC';
+
         $stmt = $conn->prepare($sql);
         $stmt->execute($params);
 
         return self::buildResponsePayload($stmt, $conn);
+    }
+
+    /**
+     * Obtém, dinâmicamente, qualquer relacionamento registado devidamente como se este fosse uma propriedade normal.
+     * @param string $name
+     * @return null
+     */
+    public function __get(string $name)
+    {
+        if (array_key_exists($name, $this->loadRelationships)) {
+            $method = $this->loadRelationships[$name];
+            if (method_exists($this, $method)) {
+                return $this->{$method}();
+            }
+        }
+        trigger_error("Tentativa de acesso a propriedade inexistente: " . static::class . "::$name", E_USER_NOTICE);
+        return null;
     }
 
 }
