@@ -19,6 +19,10 @@
     <?php if(str_contains($_SERVER['REQUEST_URI'], 'profile.php')): ?>
         <link rel="stylesheet" href="/assets/css/profile.css">
     <?php endif; ?>
+
+    <?php if(str_contains($_SERVER['REQUEST_URI'], 'view-task.php')): ?>
+        <link rel="stylesheet" href="/assets/css/view-task.css">
+    <?php endif; ?>
     <style>
         body { background-color: #f8f9fa; }
         .navbar { margin-bottom: 20px; }

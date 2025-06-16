@@ -1,0 +1,8 @@
+.comment-box {
+    transition: box-shadow 0.2s;
+    border-left: 5px solid #0d6efd;
+}
+.comment-box:hover {
+    box-shadow: 0 0 10px #0d6efd33;
+    background: #f8f9fa;
+}

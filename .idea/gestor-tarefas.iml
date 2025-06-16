@@ -9,6 +9,7 @@
       <sourceFolder url="file://$MODULE_DIR$/Core/Spec" isTestSource="false" packagePrefix="App\Core\Spec\" />
       <sourceFolder url="file://$MODULE_DIR$/Core/Config" isTestSource="false" packagePrefix="App\Core\Config\" />
       <sourceFolder url="file://$MODULE_DIR$/Models/Traits" isTestSource="false" packagePrefix="App\Models\Traits\" />
+      <sourceFolder url="file://$MODULE_DIR$/Core/Exceptions" isTestSource="false" packagePrefix="App\Core\Exceptions\" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-mbstring" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/var-dumper" />
