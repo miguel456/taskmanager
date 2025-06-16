@@ -19,7 +19,8 @@
         "App\\Core\\Middleware\\": "Core/Middleware",
         "App\\Core\\Spec\\": "Core/Spec",
         "App\\Core\\Config\\": "Core/Config",
-        "App\\Models\\Traits\\": "Models/Traits"
+        "App\\Models\\Traits\\": "Models/Traits",
+        "App\\Core\\Exceptions\\": "Core/Exceptions"
       },
       "files": [
           "auth/common.php",

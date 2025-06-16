@@ -61,6 +61,7 @@ class Comment
         $this->setContent($content);
         $this->setType($type);
         $this->setTypeId($typeId);
+        // Isto causa que, a cada F5, as datas dos comentários sejam as atuais e não as guardadas em DB / TODO: resolver
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
         $this->conn = DataLayer::getConnection();
@@ -251,7 +252,7 @@ class Comment
             $this->getCommenterId(),
             $this->isVisible(),
             $this->getContent(),
-            $this->getCreatedAt(),
+            $this->getCreatedAt()->format('Y-m-d H:i:s'),
             $this->getUpdatedAt()
         ]);
 
@@ -298,15 +299,14 @@ class Comment
     public static function findByIdOrFail(int $id, string $type): Comment
     {
         $conn = DataLayer::getConnection();
+        $stmt = $conn->prepare('SELECT * FROM comments WHERE id = ?');
 
-        $stmt = $conn->prepare('SELECT comments.*, commentables.commentable_type FROM comments JOIN commentables ON commentables.commentable_id = comments.id WHERE comments.id = ?');
         $stmt->execute([$id]);
-
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
-        $lastId = $res['id'];
 
         if (!empty($res)) {
-            return self::create($res)->setType($type)->setTypeId($res['commentable_id'])->setId($lastId);
+            $lastId = $res['id'];
+            return self::create($res)->setType($type)->setId($lastId);
         } else {
             throw new CommentNotFoundException();
         }
@@ -435,7 +435,7 @@ class Comment
                 return $this->{$method}();
             }
         }
-        trigger_error("Tentativa de acesso a propriedade inexistente: " . static::class . "::$name", E_USER_NOTICE);
+        trigger_error("Tentativa de acesso a propriedade inexistente: " . static::class . "::$name");
         return null;
     }
 
