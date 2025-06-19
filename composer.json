@@ -10,7 +10,8 @@
         }
     ],
     "require": {
-        "ext-pdo": "*","ext-openssl": "*"
+        "ext-pdo": "*",
+        "ext-openssl": "*"
     },
   "autoload": {
       "psr-4": {
@@ -21,7 +22,8 @@
         "App\\Core\\Config\\": "Core/Config",
         "App\\Models\\Traits\\": "Models/Traits",
         "App\\Core\\Exceptions\\": "Core/Exceptions",
-        "App\\Core\\Traits\\": "Core/Traits"
+        "App\\Core\\Traits\\": "Core/Traits",
+        "App\\Core\\Utilities\\": "Core/Utilities"
       },
       "files": [
           "auth/common.php",

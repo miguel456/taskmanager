@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\Utilities\HistoryLog;
 use App\Models\Tasks\Tasks\Task;
 
 require_once realpath(__DIR__ . '/../vendor/autoload.php');
@@ -18,6 +19,8 @@ $completingTaskStatusId = 4;
 try {
     if ($task->update($taskId, ['task_status_id' => $completingTaskStatusId])) {
         flash_message('Tarefa concluída.', 'Bom trabalho!');
+        HistoryLog::taskUpdated("A tarefa {$taskId} foi concluída.", current_id(), $taskId);
+
     } else {
         flash_message('Erro Interno', 'Não foi possível marcar a tarefa como concluída.', 'error');
     }

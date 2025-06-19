@@ -269,12 +269,44 @@ class History
         $conn = DataLayer::getConnection();
         $validOrders = ['ASC', 'DESC'];
         if (!in_array($order, $validOrders)) {
-            throw new \InvalidArgumentException('Invalid order.');
+            throw new \InvalidArgumentException('Ordenação inválida.');
         }
         $stmt = $conn->prepare('SELECT * FROM history ORDER BY created_at ' . $order);
         $stmt->execute();
         return self::buildResponsePayload($stmt, $conn);
     }
+
+    /**
+     * Devolve o histórico da tarefa.
+     * @param int $taskId ID da tarefa.
+     * @return array Lista de objetos de histórico para a dada tarefa.
+     * @throws Exception
+     */
+    public static function allForTask(int $taskId): array
+    {
+        $conn = DataLayer::getConnection();
+        $stmt = $conn->prepare('SELECT * FROM history WHERE type = ? AND target = ? ORDER BY created_at DESC');
+
+        $stmt->execute(['task', $taskId]);
+        return self::buildResponsePayload($stmt, $conn);
+    }
+
+    /**
+     * Devolve o histórico do projeto.
+     * @param int $projectId ID do projeto
+     * @return array Lista de objetos de histórico para o dado projeto.
+     * @throws Exception
+     */
+    public static function allForProject(int $projectId): array
+    {
+        $conn = DataLayer::getConnection();
+        $stmt = $conn->prepare('SELECT * FROM history WHERE type = ? AND target = ? ORDER BY created_at DESC');
+
+        $stmt->execute(['project', $projectId]);
+        return self::buildResponsePayload($stmt, $conn);
+    }
+
+
 
     public function update(): bool
     {
