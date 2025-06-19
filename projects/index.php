@@ -2,6 +2,7 @@
 
 use App\Models\Projects\Project;
 use App\Models\ProjectStatus\ProjectStatus;
+use App\Models\Users\User;
 
 require_once realpath(__DIR__ . '/../app/bootstrap.php');
 
@@ -13,6 +14,7 @@ $projects = $projectsInstance->get_project(0, true);
 $status = new ProjectStatus();
 $statuses = $status->get_status(0, true, true);
 
+$users = new User()->getAllUsers(true);
 
 
 ?>
@@ -92,54 +94,79 @@ $statuses = $status->get_status(0, true, true);
 </div>
 <!-- Create Project Modal -->
 <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content shadow-lg border-0">
             <?php if (!empty($statuses)): ?>
                 <form action="create-project.php" method="POST" novalidate>
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createProjectModalLabel">Novo projeto</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="createProjectModalLabel"><i class="fas fa-folder-plus me-2"></i>Novo projeto</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="projectName" class="form-label">Nome do projeto</label>
-                            <input type="text" class="form-control" id="projectName" name="project_name" required>
-                            <div class="invalid-feedback">Introduza um nome de projeto.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="projectDescription" class="form-label">Descrição</label>
-                            <textarea class="form-control" id="projectDescription" name="description" rows="3" required></textarea>
-                            <div class="invalid-feedback">Introduza uma descrição.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="startDate" class="form-label">Data prevista de início</label>
-                            <input type="datetime-local" class="form-control" id="startDate" name="start_date" required>
-                            <div class="invalid-feedback">Selecione uma data e hora prevista.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="endDate" class="form-label">Data prevista de fim</label>
-                            <input type="datetime-local" class="form-control" id="endDate" name="end_date" required>
-                            <div class="invalid-feedback">Selecione uma data e hora prevista.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="status" class="form-label">Estado</label>
-                            <select class="form-select" id="status" name="status" required>
-                                <?php foreach($statuses as $status): ?>
-                                    <option value="<?php echo $status['id']; ?>"><?php echo $status['name']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <div class="invalid-feedback">Selecione um estado.</div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fas fa-heading"></i></span>
+                                    <input type="text" class="form-control" id="projectName" name="project_name" placeholder="Nome do projeto" required>
+                                    <div class="invalid-feedback">Introduza um nome de projeto.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <select class="form-select" id="assignedTo" name="assigned_to" required>
+                                        <option value="" disabled selected>Responsável</option>
+                                        <?php foreach($users as $user): ?>
+                                            <option value="<?php echo $user['iduser']; ?>"><?php echo htmlspecialchars($user['nome']); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="invalid-feedback">Selecione um responsável.</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fas fa-align-left"></i></span>
+                                    <textarea class="form-control" id="projectDescription" name="description" rows="2" placeholder="Descrição" required></textarea>
+                                    <div class="invalid-feedback">Introduza uma descrição.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fas fa-calendar-plus"></i></span>
+                                    <input type="datetime-local" class="form-control" id="startDate" name="start_date" required>
+                                    <div class="invalid-feedback">Selecione uma data e hora prevista de início.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fas fa-calendar-check"></i></span>
+                                    <input type="datetime-local" class="form-control" id="endDate" name="end_date" required>
+                                    <div class="invalid-feedback">Selecione uma data e hora prevista de fim.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fas fa-flag"></i></span>
+                                    <select class="form-select" id="status" name="status" required>
+                                        <option value="" disabled selected>Estado</option>
+                                        <?php foreach($statuses as $status): ?>
+                                            <option value="<?php echo $status['id']; ?>"><?php echo htmlspecialchars($status['name']); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="invalid-feedback">Selecione um estado.</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
                         <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Guardar projeto</button>
                     </div>
                 </form>
             <?php else: ?>
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createProjectModalLabel">Novo projeto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="createProjectModalLabel"><i class="fas fa-folder-plus me-2"></i>Novo projeto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-danger">
@@ -147,7 +174,7 @@ $statuses = $status->get_status(0, true, true);
                         <p>De momento, não é possível criar um projeto, pois não há nenhum estado disponível para lhe atribuír. Consulte a <a href="/projects/statuses">área de estados</a> para corrigir a situação.</p>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-primary" disabled><i class="fa fa-check"></i> Guardar projeto</button>
                 </div>

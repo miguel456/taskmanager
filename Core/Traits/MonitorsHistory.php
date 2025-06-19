@@ -4,6 +4,9 @@ namespace App\Core\Traits;
 
 use App\Models\History;
 
+/**
+ * Só deve ser usado em modelos que precisem de acesso rápido e não estático a estas funcionalidades.
+ */
 trait MonitorsHistory
 {
     // TODO: Melhorar isto para receber os objetos diretamente mas não há tempo e nem todos estão "standardizados".

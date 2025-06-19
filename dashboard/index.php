@@ -1,5 +1,11 @@
 <?php
+
+use App\Models\History;
+
 require_once realpath(__DIR__ . '/../app/bootstrap.php');
+
+$history = History::all();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -73,115 +79,82 @@ require_once realpath(__DIR__ . '/../app/bootstrap.php');
         </div>
     </div>
 
-    <div class="row g-4">
+    <div class="row justify-content-center">
         <!-- Task Status Pie Chart -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
+        <div class="col-md-4 d-flex justify-content-center">
+            <div class="card shadow-sm border-0 h-100 w-100">
                 <div class="card-header bg-white">
                     <i class="fas fa-chart-pie me-2"></i>Task Status Distribution
                 </div>
                 <div class="card-body">
                     <canvas id="statusPieChart" height="220"></canvas>
-                    <!-- Provide: status counts (e.g., To Do, In Progress, Done) -->
                 </div>
             </div>
         </div>
         <!-- Tasks Over Time Chart -->
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-0 h-100">
+        <div class="col-md-4 d-flex justify-content-center">
+            <div class="card shadow-sm border-0 h-100 w-100">
                 <div class="card-header bg-white">
                     <i class="fas fa-chart-line me-2"></i>Tasks Over Time
                 </div>
                 <div class="card-body">
                     <canvas id="tasksLineChart" height="220"></canvas>
-                    <!-- Provide: tasks created/completed per day/week -->
                 </div>
             </div>
         </div>
+        <!-- Recent Activities Widget -->
+        <?php if (!empty($history)): ?>
+            <div class="col-md-4 d-flex justify-content-center">
+                <div class="card shadow-sm border-0 h-100 w-100">
+                    <div class="card-header bg-white d-flex align-items-center">
+                        <i class="fas fa-history me-2 text-primary"></i>
+                        <span class="fw-bold">Atividade recente</span>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <?php foreach (array_slice($history, 0, 4) as $item): ?>
+                            <?php
+                            $icon = [
+                                'create' => ['fa-plus-circle', 'text-success'],
+                                'update' => ['fa-edit', 'text-warning'],
+                                'delete' => ['fa-trash-alt', 'text-danger'],
+                            ][$item->getAction()] ?? ['fa-info-circle', 'text-secondary'];
+
+                            $typeBadge = $item->getType() === 'task'
+                                ? 'bg-primary'
+                                : 'bg-info';
+
+                            $date = $item->getCreatedAt()->format('d M Y H:i');
+                            ?>
+                            <li class="list-group-item d-flex align-items-center">
+                        <span class="me-3">
+                            <i class="fas <?= $icon[0] ?> fa-lg <?= $icon[1] ?>"></i>
+                        </span>
+                                <div class="flex-grow-1">
+                                    <div>
+                                        <span class="fw-semibold"><?= ucfirst($item->getAction()) ?></span>
+                                        <span class="badge <?= $typeBadge ?> ms-2"><?= ucfirst($item->getType()) ?></span>
+                                        <span class="badge bg-light text-dark border ms-2">
+                                    <i class="far fa-calendar-alt me-1"></i><?= $date ?>
+                                </span>
+                                    </div>
+                                    <div class="text-muted small mt-1">
+                                        <?= htmlspecialchars($item->getDescription()) ?>
+                                    </div>
+                                    <div class="small mt-1">
+                                        <i class="fas fa-user-circle me-1"></i>
+                                        <?= htmlspecialchars($item->authorUser['nome'] ?? 'Desconhecido') ?>
+                                    </div>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>
 
-    <!-- Improved layout for the last row: each card is a direct child of a .col -->
-    <div class="row g-4 mt-4 row-cols-1 row-cols-md-2">
-        <!-- Recent Activity -->
-        <div class="col">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white">
-                    <i class="fas fa-history me-2"></i>Recent Activity
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush" id="recentActivity">
-                        <!--
-                        Provide: array of recent activities, e.g.:
-                        [
-                            ['user' => 'Alice', 'action' => 'completed task', 'task' => 'Design UI', 'time' => '2 hours ago'],
-                            ...
-                        ]
-                        -->
-                        <li class="list-group-item">
-                            <i class="fas fa-user-circle text-primary"></i>
-                            <strong>Alice</strong> completed task <b>Design UI</b>
-                            <span class="text-muted small">2 hours ago</span>
-                        </li>
-                        <li class="list-group-item">
-                            <i class="fas fa-user-circle text-success"></i>
-                            <strong>Bob</strong> added new task <b>Write Docs</b>
-                            <span class="text-muted small">3 hours ago</span>
-                        </li>
-                        <!-- ... -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <!-- Quick Actions -->
-        <div class="col">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white">
-                    <i class="fas fa-bolt me-2"></i>Quick Actions
-                </div>
-                <div class="card-body d-flex flex-wrap gap-2">
-                    <a href="/tasks/manage-task.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Task
-                    </a>
-                    <a href="/projects" class="btn btn-info">
-                        <i class="fas fa-folder-open"></i> View Projects
-                    </a>
-                    <a href="/tasks" class="btn btn-secondary">
-                        <i class="fas fa-list"></i> All Tasks
-                    </a>
-                    <a href="/reports" class="btn btn-warning">
-                        <i class="fas fa-chart-bar"></i> Reports
-                    </a>
-                </div>
-            </div>
-            <div class="card shadow-sm border-0 mt-4">
-                <div class="card-header bg-white">
-                    <i class="fas fa-calendar-day me-2"></i>Upcoming Deadlines
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush" id="upcomingDeadlines">
-                        <!--
-                        Provide: array of tasks with upcoming due dates, e.g.:
-                        [
-                            ['task' => 'Prepare Meeting', 'due' => '2024-06-15 14:00', 'project' => 'Project X'],
-                            ...
-                        ]
-                        -->
-                        <li class="list-group-item">
-                            <i class="fas fa-clock text-danger"></i>
-                            <b>Prepare Meeting</b> <span class="text-muted">in Project X</span>
-                            <span class="badge bg-danger float-end">Due: 2024-06-15 14:00</span>
-                        </li>
-                        <li class="list-group-item">
-                            <i class="fas fa-clock text-warning"></i>
-                            <b>Review PR</b> <span class="text-muted">in Project Y</span>
-                            <span class="badge bg-warning float-end">Due: 2024-06-16 10:00</span>
-                        </li>
-                        <!-- ... -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+
+
 </div>
 
 <?php
