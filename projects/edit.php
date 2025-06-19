@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Comment;
+use App\Models\History;
 use App\Models\Projects\Project;
 use App\Models\ProjectStatus\ProjectStatus;
 use App\Models\Users\User;
@@ -22,6 +23,14 @@ if (empty($pId) || !$projects->project_exists($pId)) {
 
 $commentable = "project";
 $commentableId = $pId;
+$showHistory = true;
+
+try {
+    $history = History::allForProject($pId);
+} catch (Exception $e) {
+    $showHistory = false;
+    flash_message('Erro Interno', 'Não foi possível apresentar o histórico desta tarefa e por isso não será mostrado', 'error');
+}
 
 try {
     $comments = Comment::getProjectComments($pId);
@@ -125,7 +134,78 @@ $statuses = new ProjectStatus()->get_status(0, true, true);
                     </div>
                 </div>
             <?php endif; ?>
-            <?php include_once '../layout/widgets/comments.widget.php' ?>
+
+            <div class="card mb-4">
+                <div class="card-header" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#commentsCollapse" aria-expanded="false" aria-controls="commentsCollapse">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments"></i> Comentários
+                        <span class="float-end"><i class="fas fa-chevron-down"></i></span>
+                    </h5>
+                </div>
+                <div id="commentsCollapse" class="collapse">
+                    <div class="card-body">
+                        <?php include_once '../layout/widgets/comments.widget.php' ?>
+                    </div>
+                </div>
+            </div>
+
+            <?php if ($showHistory): ?>
+                <div class="card mb-4">
+                    <div class="card-header" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#historyCollapse" aria-expanded="false" aria-controls="historyCollapse">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clock-rotate-left"></i> Histórico
+                            <span class="float-end"><i class="fas fa-chevron-down"></i></span>
+                        </h5>
+                    </div>
+                    <div id="historyCollapse" class="collapse">
+                        <div class="card-body">
+                            <?php if (!empty($history)): ?>
+                                <ul class="list-group list-group-flush">
+                                    <?php foreach (array_slice($history, 0, 8) as $item): ?>
+                                        <?php
+                                        $icon = [
+                                            'create' => ['fa-plus-circle', 'text-success'],
+                                            'update' => ['fa-edit', 'text-warning'],
+                                            'delete' => ['fa-trash-alt', 'text-danger'],
+                                        ][$item->getAction()] ?? ['fa-info-circle', 'text-secondary'];
+
+                                        $typeBadge = $item->getType() === 'task'
+                                            ? 'bg-primary'
+                                            : 'bg-info';
+
+                                        $date = $item->getCreatedAt()->format('d M Y H:i');
+                                        ?>
+                                        <li class="list-group-item d-flex align-items-center">
+                                        <span class="me-3">
+                                            <i class="fas <?= $icon[0] ?> fa-lg <?= $icon[1] ?>"></i>
+                                        </span>
+                                            <div class="flex-grow-1">
+                                                <div>
+                                                    <span class="fw-semibold"><?= ucfirst($item->getAction()) ?></span>
+                                                    <span class="badge <?= $typeBadge ?> ms-2"><?= ucfirst($item->getType()) ?></span>
+                                                    <span class="badge bg-light text-dark border ms-2">
+                                                        <i class="far fa-calendar-alt me-1"></i><?= $date ?>
+                                                    </span>
+                                                </div>
+                                                <div class="text-muted small mt-1">
+                                                    <?= htmlspecialchars($item->getDescription()) ?>
+                                                </div>
+                                                <div class="small mt-1">
+                                                    <i class="fas fa-user-circle me-1"></i>
+                                                    <?= htmlspecialchars($item->authorUser['nome'] ?? 'Desconhecido') ?>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php else: ?>
+                                <div class="text-muted">Parece que este projeto ainda não tem histórico.</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
         </div>
     </div>
 
