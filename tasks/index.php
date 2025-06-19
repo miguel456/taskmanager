@@ -37,40 +37,40 @@ $users = $userModel->getAllUsers(true);
         <div class="card mb-4 shadow-sm p-3">
             <form id="taskFilterForm" class="row g-2 align-items-end">
                 <div class="col-md-3">
-                    <label for="filterProject" class="form-label">Project</label>
+                    <label for="filterProject" class="form-label">Projeto</label>
                     <select class="form-select" id="filterProject" name="project">
-                        <option value="">All Projects</option>
+                        <option value="">Todos os projetos</option>
                         <?php foreach($projects as $project): ?>
                             <option value="<?= $project['id'] ?>"><?= $project['name'] ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="filterStatus" class="form-label">Status</label>
+                    <label for="filterStatus" class="form-label">Estados</label>
                     <select class="form-select" id="filterStatus" name="status">
-                        <option value="">All Statuses</option>
+                        <option value="">Todos os estados</option>
                         <?php foreach($statuses as $item): ?>
                             <option value="<?= $item['id'] ?>"><?= $item['name'] ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="filterPriority" class="form-label">Priority</label>
+                    <label for="filterPriority" class="form-label">Prioridade</label>
                     <select class="form-select" id="filterPriority" name="priority">
-                        <option value="">All</option>
-                        <option value="P0">P0 (Critical)</option>
-                        <option value="P1">P1 (High)</option>
-                        <option value="P2">P2 (Medium)</option>
-                        <option value="P3">P3 (Low)</option>
-                        <option value="P4">P4 (Minor)</option>
+                        <option value="">Tudo</option>
+                        <option value="P0">P0 (Crítico)</option>
+                        <option value="P1">P1 (Alto)</option>
+                        <option value="P2">P2 (Médio)</option>
+                        <option value="P3">P3 (Baixo)</option>
+                        <option value="P4">P4 (Indiferente)</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="filterDueDate" class="form-label">Due Before</label>
+                    <label for="filterDueDate" class="form-label">Dt. limite</label>
                     <input type="date" class="form-control" id="filterDueDate" name="due_date">
                 </div>
                 <div class="col-md-2">
-                    <button type="button" class="btn btn-primary w-100" id="applyFilters"><i class="fas fa-filter"></i> Filter</button>
+                    <button type="button" class="btn btn-primary w-100" id="applyFilters"><i class="fas fa-filter"></i> Aplicar filtros</button>
                 </div>
                 <div class="col-md-1">
                     <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#newTaskModal"><i class="fas fa-plus"></i></button>
@@ -78,7 +78,6 @@ $users = $userModel->getAllUsers(true);
             </form>
         </div>
 
-        <!-- Task List -->
         <div class="card shadow-sm">
             <div class="card-body p-0">
                 <?php if (!empty($tasks)): ?>
@@ -104,7 +103,7 @@ $users = $userModel->getAllUsers(true);
                                     data-priority="<?= $task['task_priority'] ?>"
                                     data-due-date="<?= substr($task['due_date'], 0, 10) ?>">
                                     <td>
-                                        <img src="https://ui-avatars.com/api/?name=<?= $task['rel']['task_owner']['nome'] ?>&background=dee2e6&color=495057&size=32" alt="User" class="rounded-circle" width="32" height="32">
+                                        <img id="taskOwnerProfileId<?= $task['rel']['task_owner']['iduser'] ?>" src="https://ui-avatars.com/api/?name=<?= $task['rel']['task_owner']['nome'] ?>&background=dee2e6&color=495057&size=32" alt="User" class="rounded-circle user-img" width="32" height="32">
                                     </td>
                                     <td><?= htmlspecialchars($task['task_name']) ?></td>
                                     <td><?= htmlspecialchars($task['task_description']) ?></td>
@@ -119,9 +118,9 @@ $users = $userModel->getAllUsers(true);
                                     <td>
                                         <form action="complete-task.php" method="POST" class="d-inline">
                                             <input type="hidden" name="taskId" value="<?= $task['id'] ?>">
-                                            <button class="btn btn-success btn-sm" type="submit" title="Complete"><i class="fa-solid fa-circle-check"></i></button>
+                                            <button class="btn btn-success btn-sm btn-complete" type="submit" title="Terminar tarefa"><i class="fa-solid fa-circle-check"></i></button>
                                         </form>
-                                        <button class="btn btn-info btn-sm open-details-panel" type="button" title="Details" data-task-id="<?= $task['id'] ?>">
+                                        <button class="btn btn-info btn-sm open-details-panel" type="button" title="Detalhes" data-task-id="<?= $task['id'] ?>">
                                             <i class="fa-solid fa-eye"></i>
                                         </button>
                                     </td>
@@ -134,8 +133,8 @@ $users = $userModel->getAllUsers(true);
                     <div class="p-5 text-center">
                         <img src="/img/relax.svg" height="150px" class="mb-4" alt="Relax">
                         <div class="alert alert-success">
-                            <h4 class="alert-title"><i class="fa fa-check-double"></i> No tasks!</h4>
-                            <p>You have no tasks to do. Great time to relax! 👌</p>
+                            <h4 class="alert-title"><i class="fa fa-check-double"></i> Não há tarefas!</h4>
+                            <p>Não há tarefas a fazer! #inboxzero 👌</p>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -144,14 +143,13 @@ $users = $userModel->getAllUsers(true);
     </div>
 </div>
 
-<!-- Offcanvas Task Details Panel -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="taskDetailsPanel" aria-labelledby="taskDetailsPanelLabel">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="taskDetailsPanelLabel"><i class="fas fa-tasks"></i> Task Details</h5>
+        <h5 class="offcanvas-title" id="taskDetailsPanelLabel"><i class="fas fa-tasks"></i> Detalhes da tarefa</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body" id="taskDetailsContent">
-        <!-- Task details will be loaded here via JS -->
+
     </div>
 </div>
 
@@ -264,7 +262,6 @@ $users = $userModel->getAllUsers(true);
 
 
 <script>
-    // Filtering logic
     document.getElementById('applyFilters').addEventListener('click', function () {
         const project = document.getElementById('filterProject').value;
         const status = document.getElementById('filterStatus').value;
@@ -284,22 +281,23 @@ $users = $userModel->getAllUsers(true);
     document.querySelectorAll('.open-details-panel').forEach(btn => {
         btn.addEventListener('click', function () {
             const taskId = this.dataset.taskId;
-            // You can use AJAX here to fetch details, for now just use inline data
             const row = document.querySelector(`tr[data-task-id="${taskId}"]`);
-            // Example: fill with data from the row or a JS object
             document.getElementById('taskDetailsContent').innerHTML = `
                 <div>
                     <h5>${row.children[1].textContent}</h5>
                     <p>${row.children[2].textContent}</p>
                     <ul class="list-group mb-3">
-                        <li class="list-group-item"><b>Project:</b> ${row.children[3].textContent}</li>
-                        <li class="list-group-item"><b>Status:</b> ${row.children[4].textContent}</li>
-                        <li class="list-group-item"><b>Due Date:</b> ${row.children[5].textContent}</li>
-                        <li class="list-group-item"><b>Priority:</b> ${row.children[6].textContent}</li>
+                        <li class="list-group-item"><b>Projeto:</b> ${row.children[3].textContent}</li>
+                        <li class="list-group-item"><b>Estado:</b> ${row.children[4].textContent}</li>
+                        <li class="list-group-item"><b>Dt. limite:</b> ${row.children[5].textContent}</li>
+                        <li class="list-group-item"><b>Prioridade:</b> ${row.children[6].textContent}</li>
                     </ul>
-                    <button class="btn btn-warning" onclick="location.href='view-task.php?task=${taskId}'">
-                        <i class="fa-solid fa-pen-to-square"></i> Edit Task
-                    </button>
+                   <button class="btn btn-warning me-2" onclick="location.href='view-task.php?task=${taskId}'">
+                       <i class="fa-solid fa-pen-to-square"></i> Mais detalhes
+                   </button>
+                   <button class="btn btn-danger" onclick="if(confirm('Tem a certeza que pretende eliminar esta tarefa?')) location.href='delete-task.php?task=${taskId}'">
+                       <i class="fa-solid fa-trash"></i> Eliminar
+                   </button>
                 </div>
             `;
             new bootstrap.Offcanvas(document.getElementById('taskDetailsPanel')).show();
@@ -312,20 +310,22 @@ include '../layout/footer.php';
 include '../error/flash-messages.php';
 ?>
 
-<?php foreach($tasks as $task): ?>
+
 <script>
-    tippy('#task-finish-task-<?php echo $task['id'] ?>', {
+    tippy('.btn-complete', {
         content: 'Terminar tarefa',
     });
 
-    tippy('#view-button-task-<?php echo $task['id'] ?>', {
+    tippy('.open-details-panel', {
         content: 'Ver mais detalhes',
     });
-    // TODO: possibility of double IDs; double-check
-    tippy('#taskOwnerProfileId<?= $task['rel']['task_owner']['iduser'] ?>', {
-        content: '<?= $task['rel']['task_owner']['nome'] ?>'
-    });
+
+    <?php foreach ($tasks as $task): ?>
+        tippy('#taskOwnerProfileId<?= $task['rel']['task_owner']['iduser'] ?>', {
+            content: '<?= $task['rel']['task_owner']['nome'] ?>'
+        });
+    <?php endforeach; ?>
 </script>
-<?php endforeach; ?>
+
 </body>
 </html>

@@ -48,6 +48,12 @@ if (!bag_has_message()) {
 
     if ($project->update_project($pid, $toUpdate)) {
         flash_message('Operação bem-sucedida', 'Projeto editado com sucesso.');
+
+        if (!empty($project->getActiveProject())) {
+            $project->clearActiveProject();
+            $project->activateProject($pid);
+        }
+
         response('/projects/edit.php?pid=' . $pid);
         die;
     }

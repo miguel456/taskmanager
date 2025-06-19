@@ -16,6 +16,8 @@ if (empty($project_id) && !$project->project_exists($project_id)) {
 
 if ($project->delete_project($project_id)) {
     flash_message('Sucesso', 'Projeto eliminado com sucesso.');
+    $project->clearActiveProject();
+
     response('/projects');
     die;
 }

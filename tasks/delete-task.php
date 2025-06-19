@@ -9,12 +9,7 @@ if (!is_logged_in()) {
     die;
 }
 
-if (direct_check()) {
-    response('/tasks');
-    die;
-}
-
-$taskId = $_POST['task_id'];
+$taskId = $_GET['task'];
 
 if (empty($taskId)) {
     flash_message('Tarefa não encontrada', 'A tarefa que tentou apagar não existe ou não é válida.', 'error');
