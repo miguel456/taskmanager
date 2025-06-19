@@ -228,3 +228,29 @@ function config(string $key): string
 {
     return new Config()->getAppConfig()[$key];
 }
+
+/**
+ * Devolve o ID do utilizador atual.
+ * @return int ID atual, 0 se não tiver sessão iniciada.
+ */
+function current_id(): int
+{
+    if (is_logged_in()) {
+        return $_SESSION['id'];
+    }
+
+    return 0;
+}
+
+/**
+ * O nome de utilizador atual, ou null se não tiver logado.
+ * @return string|null
+ */
+function current_username(): ?string
+{
+    if (is_logged_in()) {
+        return $_SESSION['username'];
+    }
+
+    return null;
+}

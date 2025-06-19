@@ -3,6 +3,8 @@
 namespace App\Models\Tasks\Tasks;
 
 use App\Core\Database\Database;
+use App\Core\Database\DataLayer;
+use App\Core\Traits\MonitorsHistory;
 use App\Models\Projects\Project;
 use App\Models\TaskStatus\TaskStatus;
 use App\Models\Users\User;
@@ -12,6 +14,7 @@ use PDO;
 
 class Task
 {
+    use MonitorsHistory;
     private \PDO $conn;
     private string $task_name;
     private int $task_owner;
@@ -224,7 +227,7 @@ class Task
 
         $optionalProjectId = ($this->getProject() == 0) ? null : $this->getProject();
 
-        return $stmt->execute([
+        $result = $stmt->execute([
            null,
            $this->getTaskName(),
            $this->getTaskOwner(),
@@ -239,6 +242,12 @@ class Task
            $this->getCreatedAt()->format('Y-m-d H:i:s'),
             $this->getUpdatedAt()->format('Y-m-d H:i:s'),
         ]);
+
+        if ($result) {
+            $this->publishEvent("A tarefa \"{$this->getTaskName()}\" foi criada.", 'create', 'task', $conn->lastInsertId());
+        }
+
+        return $result;
     }
 
     /**
@@ -305,7 +314,12 @@ class Task
         ];
 
         $fields['updated_at'] = new DateTime()->format('Y-m-d H:i:s');
-        return update_table_data('tasks', ['id', $task_id], $fillable, $fields);
+        $result = DataLayer::updateTableData('tasks', ['id', $task_id], $fillable, $fields);
+
+        if ($result) {
+            $this->publishEvent("A tarefa {$task_id} foi atualizada.", 'update', 'task', $task_id);
+        }
+        return $result;
     }
 
     /**
@@ -315,7 +329,13 @@ class Task
      */
     public function delete(int $task_id): bool
     {
-        return $this->conn->prepare('DELETE FROM tasks WHERE id = ?')->execute([$task_id]);
+        $result = $this->conn->prepare('DELETE FROM tasks WHERE id = ?')->execute([$task_id]);
+
+        if ($result) {
+            $this->publishEvent("A tarefa {$task_id} foi eliminada.", 'delete', 'task', $task_id);
+        }
+
+        return $result;
     }
 
     /**

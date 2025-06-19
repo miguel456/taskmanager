@@ -11,7 +11,6 @@ if (!is_logged_in()) {
     die;
 }
 
-// TODO: Filtrar com base no projeto ativo em sessão
 $taskModel = new Task();
 $userModel = new User();
 $projectModel = new App\Models\Projects\Project();
@@ -19,8 +18,6 @@ $status = new TaskStatus();
 
 $statuses = $status->read(0, true, true);
 $projects = $projectModel->get_project(0, true);
-
-
 $activeProject = $projectModel->getActiveProject();
 
 $tasks = $taskModel->read();
@@ -35,275 +32,288 @@ $users = $userModel->getAllUsers(true);
 <div class="main-content">
     <div class="container my-4">
         <?php include_once '../layout/project-status-bar.php' ?>
-        <div class="card p-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0"><i class="fas fa-list"></i> O seu trabalho</h5>
-                <div class="btn-group" role="group" aria-label="Filtros de tarefas">
-                    <button type="button" class="btn btn-outline-primary btn-sm mr-2<?php echo empty($tasks) ? ' disabled' : ''; ?>" title="Filtrar por estado">
-                        <i class="fas fa-filter"></i> Estado
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm ml-2<?php echo empty($tasks) ? ' disabled' : ''; ?>" title="Filtrar por data limite">
-                        <i class="fas fa-calendar-day"></i> Data limite
-                    </button>
-                    <button type="button" class="btn btn-outline-warning btn-sm ml-2<?php echo empty($tasks) ? ' disabled' : ''; ?>" title="Filtrar por prioridade">
-                        <i class="fas fa-exclamation"></i> Prioridade
-                    </button>
+
+        <!-- Filter Controls -->
+        <div class="card mb-4 shadow-sm p-3">
+            <form id="taskFilterForm" class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label for="filterProject" class="form-label">Project</label>
+                    <select class="form-select" id="filterProject" name="project">
+                        <option value="">All Projects</option>
+                        <?php foreach($projects as $project): ?>
+                            <option value="<?= $project['id'] ?>"><?= $project['name'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
-            </div>
-            <?php if (!empty($tasks)): ?>
-                <table class="table table-hover text-center">
-                    <thead>
-                    <tr>
-                        <th></th>
-                        <th>Nome</th>
-                        <th>Descrição</th>
-                        <th>Projeto</th>
-                        <th>Estado</th>
-                        <th>Data limite</th>
-                        <th>Ações</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($tasks as $task): ?>
-                        <tr>
-                            <td>
-                                <img id="taskOwnerProfileId<?= $task['rel']['task_owner']['iduser'] ?>" src="https://ui-avatars.com/api/?name=<?= $task['rel']['task_owner']['nome'] ?>&background=dee2e6&color=495057&size=32" alt="User" class="rounded-circle" width="32" height="32">
-                            </td>
-                            <td><?php echo htmlspecialchars($task['task_name']); ?></td>
-                            <td><?php echo htmlspecialchars($task['task_description']); ?></td>
-                            <td><b><?= htmlspecialchars($task['rel']['project_id']['name'] ?? 'Nenhum atribuído') ?></b></td>
-                            <td><?php echo htmlspecialchars($task['rel']['task_status_id']['name']); ?></td>
-                            <td><?php echo htmlspecialchars($task['due_date']); ?></td>
-                            <td>
-                                <form action="complete-task.php" method="POST">
-                                    <input type="hidden" name="taskId" value="<?= $task['id'] ?>">
-                                    <button class="btn btn-success" type="submit" id="task-finish-task-<?php echo $task['id'] ?>"><i class="fa-solid fa-circle-check"></i></button>
-                                </form>
-                                <button class="btn btn-info" type="button" id="view-button-task-<?php echo $task['id'] ?>"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#taskDetailsModalTask<?php echo $task['id'] ?>">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <img src="/img/relax.svg" height="150px" class="mb-4" alt="Duas pessoas a relaxar">
-                <div class="alert alert-success">
-                    <h4 class="alert-title"><i class="fa fa-check-double"></i><b> Não há tarefas!</b></h4>
-                    <p>Não tem nenhuma tarefa para fazer. Ótima oportunidade para relaxar descansado! 👌</p>
+                <div class="col-md-2">
+                    <label for="filterStatus" class="form-label">Status</label>
+                    <select class="form-select" id="filterStatus" name="status">
+                        <option value="">All Statuses</option>
+                        <?php foreach($statuses as $item): ?>
+                            <option value="<?= $item['id'] ?>"><?= $item['name'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
-            <?php endif; ?>
+                <div class="col-md-2">
+                    <label for="filterPriority" class="form-label">Priority</label>
+                    <select class="form-select" id="filterPriority" name="priority">
+                        <option value="">All</option>
+                        <option value="P0">P0 (Critical)</option>
+                        <option value="P1">P1 (High)</option>
+                        <option value="P2">P2 (Medium)</option>
+                        <option value="P3">P3 (Low)</option>
+                        <option value="P4">P4 (Minor)</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filterDueDate" class="form-label">Due Before</label>
+                    <input type="date" class="form-control" id="filterDueDate" name="due_date">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-primary w-100" id="applyFilters"><i class="fas fa-filter"></i> Filter</button>
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#newTaskModal"><i class="fas fa-plus"></i></button>
+                </div>
+            </form>
         </div>
 
-        <div class="tool-separator mb-3 mt-5">
-            <h4>Gerir tarefas</h4>
-            <hr
-        </div>
-
-      <div class="accordion mb-5" id="newTaskAccordion">
-          <div class="card">
-              <div class="card-header" id="headingNewTask">
-                  <h2 class="mb-0">
-                      <button class="btn btn-link text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNewTask" aria-expanded="true" aria-controls="collapseNewTask">
-                          Nova tarefa
-                      </button>
-                  </h2>
-              </div>
-              <div id="collapseNewTask" class="collapse" aria-labelledby="headingNewTask" data-bs-parent="#newTaskAccordion">
-                  <div class="card-body">
-                      <form method="POST" action="/tasks/manage-task.php">
-                          <input type="hidden" name="update" value="0">
-                          <div class="mb-3">
-                              <label for="taskName" class="form-label">Nome da tarefa</label>
-                              <input type="text" class="form-control" id="taskName" name="task_name" required>
-                          </div>
-                          <div class="mb-3">
-                              <label for="assignedUser" class="form-label">Utilizador atribuído</label>
-                              <select class="form-control" name="task_owner" id="assignedUser">
-                                  <?php foreach($users as $user): ?>
-                                  <option value="<?= $user['iduser'] ?>"><?= $user['nome'] ?></option>
-                                  <?php endforeach; ?>
-                              </select>
-                          </div>
-                          <div class="mb-3">
-                              <label for="taskStatus" class="form-label">Estado</label>
-                              <select class="form-select" id="taskStatus" name="task_status_id" required>
-                                  <?php foreach ($statuses as $item):  ?>
-                                        <option value="<?php echo $item['id'] ?>"><?php echo $item['name']; ?></option>
-                                  <?php endforeach; ?>
-                              </select>
-                          </div>
-
-                          <div class="mb-3">
-                              <label for="project_id" class="form-label">Projeto atribuído</label>
-                              <select class="form-control" name="project_id" id="project_id">
-                                  <option disabled>Selecione um projeto</option>
-                                  <option value="0">Nenhum projeto</option>
-                                  <?php foreach($projects as $project): ?>
-                                      <option value="<?= $project['id'] ?>"
-                                          <?php if (!empty($activeProject) && $activeProject['project_id'] == $project['id']) echo 'selected'; ?>>
-                                          <?= $project['name'] ?>
-                                          <?php if (!empty($activeProject) && $activeProject['project_id'] == $project['id']) echo ' (Projeto selecionado)'; ?>
-                                      </option>
-                                  <?php endforeach; ?>
-                              </select>
-                          </div>
-
-                          <div class="mb-3">
-                              <label for="taskDescription" class="form-label">Descrição</label>
-                              <textarea class="form-control" id="taskDescription" name="task_description" rows="2"></textarea>
-                          </div>
-                          <div class="mb-3">
-                              <label for="taskPriority" class="form-label">Prioridade</label>
-                              <select class="form-select" id="taskPriority" name="task_priority">
-                                  <option value="P0">P0 (Crítica)</option>
-                                  <option value="P1">P1 (Alta)</option>
-                                  <option value="P2">P2 (Média)</option>
-                                  <option value="P3">P3 (Baixa)</option>
-                                  <option value="P4">P4 (Pouco Importante)</option>
-                              </select>
-                          </div>
-                          <div class="mb-3">
-                              <label for="dueDate" class="form-label">Data limite</label>
-                              <input type="datetime-local" class="form-control" id="dueDate" name="due_date">
-                          </div>
-                          <button type="submit" class="btn btn-primary">Criar tarefa</button>
-                      </form>
-                  </div>
-              </div>
-          </div>
-      </div>
-    </div>
-</div>
-
-
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <form id="deleteProjectForm" method="POST" action="delete-task.php">
-            <input type="hidden" name="task_id" id="deleteTaskId">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar ação</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Tem a certeza que pretende apagar esta tarefa? Esta ação é irreversível.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash-can"></i> Confirmar</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-ban"></i> Cancelar</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<?php foreach($tasks as $task): ?>
-    <div class="modal fade" id="taskDetailsModal<?php echo "Task" . $task['id'] ?>" tabindex="-1" aria-labelledby="taskDetailsModalLabel<?php echo "Task" . $task['id'] ?>" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="taskDetailsModalLabel<?php echo "Task" . $task['id'] ?>">
-                        <i class="fas fa-tasks"></i> Vista detalhada da tarefa
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6 border-end">
-                            <div class="mb-3">
-                                <i class="fas fa-heading me-2"></i>
-                                <strong>Título:</strong> <?php echo $task['task_name'] ?>
-                            </div>
-                            <div class="mb-3">
-                                <i class="fas fa-align-left me-2"></i>
-                                <strong>Descrição:</strong> <?php echo $task['task_description'] ?>
-                            </div>
-                            <div class="mb-3">
-                                <i class="fas fa-user me-2"></i>
-                                <strong>Atribuído a:</strong> <?php echo $task['rel']['task_owner']['nome'] ?>
-                            </div>
-                            <div class="mb-3">
-                                <i class="fas fa-flag me-2"></i>
-                                <strong>Estado/Fase:</strong> <?php echo $task['rel']['task_status_id']['name'] ?>
-                            </div>
-                            <div class="mb-3">
-                                <i class="fas fa-project-diagram me-2"></i>
-                                <strong>Projeto atribuído:</strong> <?php echo htmlspecialchars($task['rel']['project_id']['name'] ?? 'Nenhum atribuído') ?>
-                            </div>
-                            <div class="mb-3">
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                                <strong>Prioridade:</strong> <?php echo $task['task_priority'] ?>
-                            </div>
+        <!-- Task List -->
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <?php if (!empty($tasks)): ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="tasksTable">
+                            <thead class="table-light">
+                            <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Project</th>
+                                <th>Status</th>
+                                <th>Due Date</th>
+                                <th>Priority</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($tasks as $task): ?>
+                                <tr class="task-row" data-task-id="<?= $task['id'] ?>"
+                                    data-project="<?= $task['rel']['project_id']['id'] ?? '' ?>"
+                                    data-status="<?= $task['rel']['task_status_id']['id'] ?>"
+                                    data-priority="<?= $task['task_priority'] ?>"
+                                    data-due-date="<?= substr($task['due_date'], 0, 10) ?>">
+                                    <td>
+                                        <img src="https://ui-avatars.com/api/?name=<?= $task['rel']['task_owner']['nome'] ?>&background=dee2e6&color=495057&size=32" alt="User" class="rounded-circle" width="32" height="32">
+                                    </td>
+                                    <td><?= htmlspecialchars($task['task_name']) ?></td>
+                                    <td><?= htmlspecialchars($task['task_description']) ?></td>
+                                    <td><?= htmlspecialchars($task['rel']['project_id']['name'] ?? 'None') ?></td>
+                                    <td><?= htmlspecialchars($task['rel']['task_status_id']['name']) ?></td>
+                                    <td><?= htmlspecialchars($task['due_date']) ?></td>
+                                    <td>
+                                    <span class="badge bg-<?= $task['task_priority'] === 'P0' ? 'danger' : ($task['task_priority'] === 'P1' ? 'warning' : ($task['task_priority'] === 'P2' ? 'info' : 'secondary')) ?>">
+                                        <?= $task['task_priority'] ?>
+                                    </span>
+                                    </td>
+                                    <td>
+                                        <form action="complete-task.php" method="POST" class="d-inline">
+                                            <input type="hidden" name="taskId" value="<?= $task['id'] ?>">
+                                            <button class="btn btn-success btn-sm" type="submit" title="Complete"><i class="fa-solid fa-circle-check"></i></button>
+                                        </form>
+                                        <button class="btn btn-info btn-sm open-details-panel" type="button" title="Details" data-task-id="<?= $task['id'] ?>">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="p-5 text-center">
+                        <img src="/img/relax.svg" height="150px" class="mb-4" alt="Relax">
+                        <div class="alert alert-success">
+                            <h4 class="alert-title"><i class="fa fa-check-double"></i> No tasks!</h4>
+                            <p>You have no tasks to do. Great time to relax! 👌</p>
                         </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Offcanvas Task Details Panel -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="taskDetailsPanel" aria-labelledby="taskDetailsPanelLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="taskDetailsPanelLabel"><i class="fas fa-tasks"></i> Task Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" id="taskDetailsContent">
+        <!-- Task details will be loaded here via JS -->
+    </div>
+</div>
+
+<div class="modal fade" id="newTaskModal" tabindex="-1" aria-labelledby="newTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="newtask" method="POST" action="/tasks/manage-task.php" autocomplete="off">
+                <input type="hidden" name="update" value="0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="newTaskModalLabel">
+                        <i class="fas fa-plus-circle me-2"></i> Nova tarefa
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <!-- Left Column -->
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <i class="fas fa-calendar-day me-2"></i>
-                                <strong>Data limite de conclusão:</strong> <?php echo $task['due_date'] ?>
+                                <label for="taskName" class="form-label">Título</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-heading"></i></span>
+                                    <input type="text" class="form-control" id="taskName" name="task_name" required>
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <i class="fas fa-play me-2"></i>
-                                <strong>Data de início da tarefa:</strong> <?php echo $task['start_date'] ?>
+                                <label for="assignedUser" class="form-label">Responsável</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
+                                    <select class="form-select" name="task_owner" id="assignedUser">
+                                        <?php foreach($users as $user): ?>
+                                            <option value="<?= $user['iduser'] ?>"><?= $user['nome'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <i class="fas fa-check-circle me-2"></i>
-                                <strong>Data de conclusão da tarefa:</strong> <?php echo $task['finish_date'] ?>
+                                <label for="taskStatus" class="form-label">Estado</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-flag"></i></span>
+                                    <select class="form-select" id="taskStatus" name="task_status_id" required>
+                                        <?php foreach ($statuses as $item):  ?>
+                                            <option value="<?php echo $item['id'] ?>"><?php echo $item['name']; ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <i class="fas fa-hourglass-half me-2"></i>
-                                <strong>Tempo gasto:</strong> <?php echo $task['time_spent'] ?? 'Sem registos'?>
+                                <label for="project_id" class="form-label">Projeto</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-project-diagram"></i></span>
+                                    <select class="form-select" name="project_id" id="project_id">
+                                        <option disabled>Selecione um projeto</option>
+                                        <option value="0">Nenhum projeto</option>
+                                        <?php foreach($projects as $project): ?>
+                                            <option value="<?= $project['id'] ?>"
+                                                <?php if (!empty($activeProject) && $activeProject['project_id'] == $project['id']) echo 'selected'; ?>>
+                                                <?= $project['name'] ?>
+                                                <?php if (!empty($activeProject) && $activeProject['project_id'] == $project['id']) echo ' (Projeto selecionado)'; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Right Column -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="taskDescription" class="form-label">Descrição</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-align-left"></i></span>
+                                    <textarea class="form-control" id="taskDescription" name="task_description" rows="2"></textarea>
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <i class="fas fa-plus-circle me-2"></i>
-                                <strong>Data de criação:</strong> <?php echo $task['created_at'] ?>
+                                <label for="taskPriority" class="form-label">Prioridade</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-exclamation-circle"></i></span>
+                                    <select class="form-select" id="taskPriority" name="task_priority">
+                                        <option value="P0">P0 (Crítica)</option>
+                                        <option value="P1">P1 (Alta)</option>
+                                        <option value="P2">P2 (Média)</option>
+                                        <option value="P3">P3 (Baixa)</option>
+                                        <option value="P4">P4 (Pouco Importante)</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <i class="fas fa-edit me-2"></i>
-                                <strong>Última atualização:</strong> <?php echo $task['updated_at'] ?>
+                                <label for="dueDate" class="form-label">Prazo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
+                                    <input type="datetime-local" class="form-control" id="dueDate" name="due_date">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-warning" onclick="location.href='view-task.php?task=<?php echo $task['id'] ?>'">
-                        <i class="fa-solid fa-pen-to-square"></i> Editar
-                    </button>
-                    <button type="button"
-                            class="btn btn-danger"
-                            data-bs-toggle="modal"
-                            data-bs-target="#confirmDeleteModal"
-                            data-task-id="<?php echo $task['id']; ?>">
-                        <i class="fa-solid fa-eraser"></i> Apagar
-                    </button>
+                <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times"></i> Fechar
+                        <i class="fas fa-times me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i> Submeter
                     </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
+</div>
 
-<?php endforeach; ?>
-
-<?php
-include '../layout/footer.php';
-include  '../error/flash-messages.php';
-?>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var confirmDeleteModal = document.getElementById('confirmDeleteModal');
-        confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var taskId = button.getAttribute('data-task-id');
-            document.getElementById('deleteTaskId').value = taskId;
+    // Filtering logic
+    document.getElementById('applyFilters').addEventListener('click', function () {
+        const project = document.getElementById('filterProject').value;
+        const status = document.getElementById('filterStatus').value;
+        const priority = document.getElementById('filterPriority').value;
+        const dueDate = document.getElementById('filterDueDate').value;
+        document.querySelectorAll('#tasksTable tbody tr').forEach(row => {
+            let show = true;
+            if (project && row.dataset.project !== project) show = false;
+            if (status && row.dataset.status !== status) show = false;
+            if (priority && row.dataset.priority !== priority) show = false;
+            if (dueDate && row.dataset.dueDate > dueDate) show = false;
+            row.style.display = show ? '' : 'none';
         });
     });
 
-    <?php foreach($tasks as $task): ?>
+    // Offcanvas details panel logic
+    document.querySelectorAll('.open-details-panel').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const taskId = this.dataset.taskId;
+            // You can use AJAX here to fetch details, for now just use inline data
+            const row = document.querySelector(`tr[data-task-id="${taskId}"]`);
+            // Example: fill with data from the row or a JS object
+            document.getElementById('taskDetailsContent').innerHTML = `
+                <div>
+                    <h5>${row.children[1].textContent}</h5>
+                    <p>${row.children[2].textContent}</p>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item"><b>Project:</b> ${row.children[3].textContent}</li>
+                        <li class="list-group-item"><b>Status:</b> ${row.children[4].textContent}</li>
+                        <li class="list-group-item"><b>Due Date:</b> ${row.children[5].textContent}</li>
+                        <li class="list-group-item"><b>Priority:</b> ${row.children[6].textContent}</li>
+                    </ul>
+                    <button class="btn btn-warning" onclick="location.href='view-task.php?task=${taskId}'">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit Task
+                    </button>
+                </div>
+            `;
+            new bootstrap.Offcanvas(document.getElementById('taskDetailsPanel')).show();
+        });
+    });
+</script>
+
+<?php
+include '../layout/footer.php';
+include '../error/flash-messages.php';
+?>
+
+<?php foreach($tasks as $task): ?>
+<script>
     tippy('#task-finish-task-<?php echo $task['id'] ?>', {
         content: 'Terminar tarefa',
     });
@@ -313,11 +323,9 @@ include  '../error/flash-messages.php';
     });
     // TODO: possibility of double IDs; double-check
     tippy('#taskOwnerProfileId<?= $task['rel']['task_owner']['iduser'] ?>', {
-       content: '<?= $task['rel']['task_owner']['nome'] ?>'
+        content: '<?= $task['rel']['task_owner']['nome'] ?>'
     });
-
-    <?php endforeach; ?>
-
 </script>
+<?php endforeach; ?>
 </body>
 </html>

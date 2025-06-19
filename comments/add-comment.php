@@ -10,21 +10,11 @@ $commentable = $_POST['commentable'];
 $commentableId = $_POST['commentableId'];
 
 
-
-$back = '';
-
-switch ($commentable) {
-    case 'task':
-        $back = '/tasks/view-task.php?task=' . $commentableId;
-        break;
-
-    case 'project':
-        $back = '/projects/edit-project.php?pid=' . $commentableId;
-        break;
-
-    default:
-        $back = '/dashboard';
-}
+$back = match ($commentable) {
+    'task' => '/tasks/view-task.php?task=' . $commentableId,
+    'project' => '/projects/edit-project.php?pid=' . $commentableId,
+    default => '/dashboard',
+};
 
 if(empty($commentable) || empty($commentableId) || !in_array($commentable, ['task', 'project'])) {
     flash_message('Erro de validação', 'Metadados do comentário inválidos, recarrega a página e tenta novamente.', 'error');

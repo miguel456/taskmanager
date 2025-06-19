@@ -4,6 +4,7 @@ namespace App\Models\Projects;
 require_once realpath(__DIR__ . '/../../app/bootstrap.php');
 
 use App\Core\Database\DataLayer;
+use App\Core\Traits\MonitorsHistory;
 use App\Models\ProjectStatus\ProjectStatus;
 use App\Core\Database\Database;
 use App\Models\Users\User;
@@ -14,6 +15,8 @@ use PDO;
  * Classe de utilidade (CRUD) para projetos. Pseudo-modelo.
  */
 class Project {
+
+    use MonitorsHistory;
 
         private PDO $connection;
 
@@ -127,7 +130,7 @@ class Project {
         $dbc = $this->connection;
 
         $stmt = $dbc->prepare('INSERT INTO projects (assigned_to, name, description, start_date, end_date, status_id) VALUES (?, ?, ?, ?, ?, ?)');
-        return [$stmt->execute([
+        $result = [$stmt->execute([
            $this->assigned_to,
            $this->name,
            $this->description,
@@ -135,6 +138,10 @@ class Project {
            $this->end_date,
            $this->status_id,
         ]), $dbc->lastInsertId()];
+
+        $this->publishEvent("O projeto {$this->name} foi criado.", 'create', 'project', $dbc->lastInsertId());
+
+        return $result;
 
     }
 
@@ -188,7 +195,14 @@ class Project {
     {
         if ($this->project_exists($project_id)) {
             $stmt = $this->connection->prepare('DELETE FROM projects WHERE id = ?');
-            return $stmt->execute([$project_id]);
+            $result = $stmt->execute([$project_id]);
+
+            if ($result) {
+                $this->publishEvent("O projeto com ID {$project_id} foi eliminado.", "delete", "project", $project_id);
+            }
+
+            return $result;
+
         }
 
         return false;
@@ -217,10 +231,16 @@ class Project {
             $this->activateProject($project_id);
         }
 
-        return DataLayer::updateTableData('projects', ['id', $project_id], $fillable, $fields);
+        $update = DataLayer::updateTableData('projects', ['id', $project_id], $fillable, $fields);
+
+        // apenas publicar se existir confirmação da atualização e deixar o "caller" lidar com o resultado
+        if ($update) {
+            $this->publishEvent("O projeto {$project_id} foi atualizado (campos desconhecidos).", 'update', 'project', $project_id);
+        }
+        return $update;
     }
 
-    // TODO: Mover esta lógica para um traço
+    // TODO: Mover esta lógica para um traço (ou extrair de acordo com a sugestão do phpstorm)
     /**
      * Injeta relacionamentos do Modelo nos dados devolvidos.
      * @param array $resultSet Referência aos resultados
@@ -287,6 +307,8 @@ class Project {
         $_SESSION['active_project']['status_name'] = $project['rel']['status_id']['name'];
 
         $_SESSION['active_project']['project_id'] = $project['id'];
+
+        $this->publishEvent(current_username() . " selecionou o projeto {$project['name']} para criar novas tarefas.", 'update', 'project', $projectId);
 
     }
 

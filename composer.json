@@ -20,7 +20,8 @@
         "App\\Core\\Spec\\": "Core/Spec",
         "App\\Core\\Config\\": "Core/Config",
         "App\\Models\\Traits\\": "Models/Traits",
-        "App\\Core\\Exceptions\\": "Core/Exceptions"
+        "App\\Core\\Exceptions\\": "Core/Exceptions",
+        "App\\Core\\Traits\\": "Core/Traits"
       },
       "files": [
           "auth/common.php",
