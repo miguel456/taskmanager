@@ -295,13 +295,34 @@ $users = $userModel->getAllUsers(true);
                    <button class="btn btn-warning me-2" onclick="location.href='view-task.php?task=${taskId}'">
                        <i class="fa-solid fa-pen-to-square"></i> Mais detalhes
                    </button>
-                   <button class="btn btn-danger" onclick="if(confirm('Tem a certeza que pretende eliminar esta tarefa?')) location.href='delete-task.php?task=${taskId}'">
+                   <button class="btn btn-danger btn-delete-task" data-task-id="${taskId}">
                        <i class="fa-solid fa-trash"></i> Eliminar
                    </button>
                 </div>
             `;
             new bootstrap.Offcanvas(document.getElementById('taskDetailsPanel')).show();
         });
+    });
+
+    // SweetAlert2 delete confirmation using event delegation
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('btn-delete-task')) {
+            const taskId = e.target.dataset.taskId;
+            Swal.fire({
+                title: 'Tem a certeza?',
+                text: 'Pretende eliminar esta tarefa?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.href = `delete-task.php?task=${taskId}`;
+                }
+            });
+        }
     });
 </script>
 
