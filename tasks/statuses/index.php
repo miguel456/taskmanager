@@ -33,7 +33,12 @@ $statuses = $status->read(true, true, false);
                     <tbody>
                     <?php foreach ($statuses as $status): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($status['name']); ?></td>
+                            <td>
+                                <?php echo htmlspecialchars($status['name']); ?>
+                                <?php if (!empty($status['final']) && $status['final'] == 1): ?>
+                                    <span class="badge bg-danger ms-2">Final</span>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo htmlspecialchars($status['description']); ?></td>
                             <td>
                                 <?php
@@ -82,6 +87,13 @@ $statuses = $status->read(true, true, false);
                         <label for="statusDescription" class="form-label">Descrição breve</label>
                         <input type="text" class="form-control" id="statusDescription" name="description" required></input>
                         <div class="invalid-feedback">Introduza uma descrição breve.</div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="hidden" name="final" value="0">
+                        <input class="form-check-input" type="checkbox" value="1" id="statusFinal" name="final">
+                        <label class="form-check-label" for="statusFinal">
+                            Pode concluir tarefas?
+                        </label>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -71,8 +71,31 @@ function response(string $back, string $hmessage = "OK", array $errors = [], int
         return;
     }
 
-    header("HTTP/1.1 $code $hmessage");
+    http_send_status($code);
     header("Location: $back");
+}
+
+/**
+ * Enviar resposta JSON para pedidos AJAX.
+ * @param string $message Mensagem a enviar.
+ * @param string $type O tipo de resposta, "success" ou "error".
+ * @param array $data Opcionalmente incluir dados
+ * @param bool $should_exit Sair após enviar a resposta? Padrão True.
+ * @return void
+ */
+function ajax_response(string $message, string $type = 'success', array $data = [], bool $should_exit = true): void
+{
+    header('Content-Type: application/json');
+    http_response_code($type === 'success' ? 200 : 400);
+    echo json_encode([
+        'type' => $type,
+        'message' => $message,
+        'data' => $data
+    ]);
+
+    if ($should_exit) {
+        exit;
+    }
 }
 
 /**
@@ -207,6 +230,15 @@ function bag_has_message(): bool
 function direct_check(): bool
 {
     return $_SERVER['REQUEST_METHOD'] !== 'POST';
+}
+
+/**
+ * Verifica se o pedido atual foi feito com AJAX.
+ * @return bool True se for pedido com AJAX, false senão.
+ */
+function is_ajax_request(): bool
+{
+    return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
 }
 
 /**

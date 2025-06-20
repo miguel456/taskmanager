@@ -11,6 +11,7 @@ class TaskStatus
     private string $name;
     private string $description;
     private int $status;
+    private int $final;
     private $conn;
     private \DateTime $created_at;
     private \DateTime $updated_at;
@@ -19,15 +20,19 @@ class TaskStatus
         string $name = '',
         string $description = '',
         int $status = 1,
+        int $final = 0,
         \DateTime $created_at = new \DateTime(),
         \DateTime $updated_at = new \DateTime()
     ) {
         $this->name = $name;
         $this->description = $description;
         $this->status = $status;
-        $this->conn = Database::getConnection();
+        $this->final = $final;
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;
+        $this->conn = DataLayer::getConnection();
+
+
     }
 
     public function getName(): string
@@ -60,6 +65,21 @@ class TaskStatus
         $this->status = $status;
     }
 
+    public function getFinal(): int
+    {
+        return $this->final;
+    }
+
+    public function setFinal(int $final): bool|null
+    {
+        if (!$this->finalExists()) {
+            $this->final = $final;
+            return true;
+        } else {
+            throw new \InvalidArgumentException('Já existe uma tarefa finalizadora.');
+        }
+    }
+
     public function getCreatedAt(): \DateTime
     {
         return $this->created_at;
@@ -86,13 +106,19 @@ class TaskStatus
      */
     public function create(): bool
     {
-        $stmt = $this->conn->prepare('INSERT INTO task_status (name, description, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?)');
+
+        if ($this->getFinal() == 1 && $this->finalExists()) {
+            throw new \InvalidArgumentException('Já existe um estado de tarefa final');
+        }
+
+        $stmt = $this->conn->prepare('INSERT INTO task_status (name, description, status, final, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)');
         return $stmt->execute([
            $this->getName(),
            $this->getDescription(),
            $this->getStatus(),
-           $this->getCreatedAt()->format('Y:m:d H:i:s'),
-           $this->getUpdatedAt()->format('Y:m:d H:i:s')
+            !$this->getFinal() ? 0 : 1,
+           $this->getCreatedAt()->format('Y-m-d H:i:s'),
+           $this->getUpdatedAt()->format('Y-m-d H:i:s')
         ]);
     }
 
@@ -143,7 +169,7 @@ class TaskStatus
     }
 
     /**
-     * Atualizar o estado do projeto
+     * Atualizar o estado da tarefa
      * @param $taskStatusId
      * @param $fieldsToUpdate
      * @return bool Sucesso da operação
@@ -153,7 +179,8 @@ class TaskStatus
        $fillable = [
            'name',
            'description',
-           'status'
+           'status',
+           'final'
        ];
        return DataLayer::updateTableData('task_status', ['id', $taskStatusId], $fillable, $fieldsToUpdate);
     }
@@ -166,6 +193,56 @@ class TaskStatus
     public function delete($taskStatusId): bool
     {
         return $this->conn->prepare('DELETE FROM task_status WHERE id = ?')->execute([$taskStatusId]);
+    }
+
+    /**
+     * Verifica se existe algum estado marcado como final.
+     * @return bool
+     */
+    public function finalExists(): bool
+    {
+        $conn = $this->conn;
+        $qry = $conn->prepare('SELECT * from task_status WHERE final = 1');
+        $qry->execute();
+
+        if (!empty($qry->fetch(PDO::FETCH_ASSOC))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Devolve o estado finalizador
+     * @return array
+     */
+    public function getFinalStatus(): array
+    {
+        $conn = $this->conn;
+        $qry = $conn->prepare('SELECT * FROM task_status WHERE final = 1');
+
+        $qry->execute();
+
+        if (!empty($qry->fetch(PDO::FETCH_ASSOC))) {
+            return $qry->fetch(PDO::FETCH_ASSOC);
+        }
+
+        return [];
+    }
+
+    /**
+     * Marca um estado como podendo finalizar uma tarefa.
+     * @param $statusId
+     * @return bool
+     * @throws \InvalidArgumentException Caso já exista algum estado finalizador.
+     */
+    public function markFinal($statusId): bool
+    {
+        if ($this->finalExists()) {
+            throw new \InvalidArgumentException('Já existe um estado marcado como final.');
+        }
+
+        return $this->update($statusId, ['final' => 1]);
     }
 
 }
