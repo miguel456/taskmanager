@@ -43,7 +43,7 @@ $statuses = $status->get_status(0, true);
                                 <a href="/projects/statuses/flip.php?id=<?php echo $status['id']; ?>"><span class="badge bg-<?php echo $badge; ?>"><?php echo ($status_state) ? 'Active' : 'Inactive' ?></span></a>
                             </td>
                             <td>
-                                <button type="button" class="btn btn-warning" disabled><i class="fas fa-pencil"></i></button>
+                                <button class="btn btn-warning" onclick="openEditProjectStatusModal(<?= $status['id']; ?>)"><i class="fas fa-pencil"></i></button>
                                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-status-id="<?php echo $status['id']; ?>">
                                     <i class="fas fa-dumpster-fire"></i>
                                 </button>
@@ -114,6 +114,44 @@ $statuses = $status->get_status(0, true);
     </div>
 </div>
 
+<!-- Edit Project Status Modal -->
+<div class="modal fade" id="editProjectStatusModal" tabindex="-1" aria-labelledby="editProjectStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editProjectStatusForm" novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProjectStatusModalLabel">Edit Project Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="status_id" id="editProjectStatusId">
+                    <div class="mb-3">
+                        <label for="editProjectStatusName" class="form-label">Status Name</label>
+                        <input type="text" class="form-control" id="editProjectStatusName" name="status_name" required>
+                        <div class="invalid-feedback">Please enter a status name.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProjectStatusDescription" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="editProjectStatusDescription" name="description" required>
+                        <div class="invalid-feedback">Please enter a description.</div>
+                    </div>
+                    <div id="editProjectStatusError" class="alert alert-danger d-none"></div>
+                    <div id="editProjectStatusSuccess" class="alert alert-success d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php
+include '../../layout/footer.php';
+include  '../../error/flash-messages.php';
+?>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var confirmDeleteModal = document.getElementById('confirmDeleteModal');
@@ -123,12 +161,69 @@ $statuses = $status->get_status(0, true);
             document.getElementById('deleteStatusId').value = statusId;
         });
     });
-</script>
 
-<?php
-include '../../layout/footer.php';
-include  '../../error/flash-messages.php';
-?>
+    // Show modal and load project status data
+    function openEditProjectStatusModal(statusId) {
+        $('#editProjectStatusError').addClass('d-none').text('');
+        $('#editProjectStatusSuccess').addClass('d-none').text('');
+        $.ajax({
+            url: 'get-project-status.php',
+            type: 'POST',
+            data: { status_id: statusId },
+            dataType: 'json',
+            success: function(response) {
+                if (response.type === 'success') {
+                    const status = response.data;
+                    $('#editProjectStatusId').val(status.id);
+                    $('#editProjectStatusName').val(status.name);
+                    $('#editProjectStatusDescription').val(status.description);
+                    $('#editProjectStatusModal').modal('show');
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function() {
+                alert('Failed to load project status details.');
+            }
+        });
+    }
+
+    $('#editProjectStatusForm').on('submit', function(e) {
+        e.preventDefault();
+        $('#editProjectStatusError').addClass('d-none').text('');
+        $('#editProjectStatusSuccess').addClass('d-none').text('');
+        $.ajax({
+            url: 'edit-project-status.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.type === 'success') {
+                    $('#editProjectStatusSuccess').removeClass('d-none').text(response.message);
+                    setTimeout(function() {
+                        const row = $('tr').filter(function() {
+                            return $(this).find('button[onclick="openEditProjectStatusModal(' + $('#editProjectStatusId').val() + ')"]').length > 0;
+                        });
+                        if (row.length) {
+                            row.find('td').eq(0).text($('#editProjectStatusName').val());
+                            row.find('td').eq(1).text($('#editProjectStatusDescription').val());
+                        }
+                        $('#editProjectStatusModal').modal('hide');
+                    }, 1000);
+                } else {
+                    $('#editProjectStatusError').removeClass('d-none').text(response.message);
+                }
+            },
+            error: function(xhr) {
+                let msg = 'Falha ao atualizar o estado de projeto.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                $('#editProjectStatusError').removeClass('d-none').text(msg);
+            }
+        });
+    });
+</script>
 
 </body>
 </html>
