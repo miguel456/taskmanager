@@ -23,7 +23,9 @@
         "App\\Models\\Traits\\": "Models/Traits",
         "App\\Core\\Exceptions\\": "Core/Exceptions",
         "App\\Core\\Traits\\": "Core/Traits",
-        "App\\Core\\Utilities\\": "Core/Utilities"
+        "App\\Core\\Utilities\\": "Core/Utilities",
+        "App\\Core\\Mail\\": "Core/Mail",
+        "App\\Core\\Mail\\Drivers\\": "Core/Mail/Drivers"
       },
       "files": [
           "auth/common.php",

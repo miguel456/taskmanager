@@ -8,7 +8,7 @@ require_once realpath(__DIR__ . '/../app/bootstrap.php');
 
 $pdo = Database::getConnection();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if (direct_check()) {
     header('Location: registo.php');
     die('Acesso inválido. Dados do formulário obrigatórios.');
 }
