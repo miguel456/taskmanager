@@ -45,10 +45,10 @@ $statuses = $status->read(true, true, false);
                                 $status_state = $status['status'];
                                 $badge = ($status_state) ? 'success' : 'danger';
                                 ?>
-                                <a href="/tasks/statuses/flip.php?id=<?php echo $status['id']; ?>"><span class="badge bg-<?php echo $badge; ?>"><?php echo ($status_state) ? 'Ativo' : 'Inativo' ?></span></a>
+                                <a href="/tasks/statuses/flip.php?id=<?= $status['id']; ?>"><span class="badge bg-<?php echo $badge; ?>"><?php echo ($status_state) ? 'Ativo' : 'Inativo' ?></span></a>
                             </td>
                             <td>
-                                <button type="button" class="btn btn-warning" disabled><i class="fas fa-pencil"></i></button>
+                                <button class="btn btn-warning" onclick="openEditStatusModal(<?= $status['id']; ?>)"><i class="fas fa-pencil"></i></button>
                                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-status-id="<?php echo $status['id']; ?>">
                                     <i class="fas fa-dumpster-fire"></i>
                                 </button>
@@ -63,6 +63,46 @@ $statuses = $status->read(true, true, false);
                     <p>Não existem estados de tarefa a apresentar. Isto significa que <b>não irá ser possível criar uma tarefa nova</b>. Crie um estado agora.</p>
                 </div>
             <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Status Modal -->
+<div class="modal fade" id="editStatusModal" tabindex="-1" aria-labelledby="editStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editStatusForm" novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editStatusModalLabel">Editar estado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="status_id" id="editStatusId">
+                    <div class="mb-3">
+                        <label for="editStatusName" class="form-label">Nome do estado</label>
+                        <input type="text" class="form-control" id="editStatusName" name="status_name" required>
+                        <div class="invalid-feedback">Introduza o nome do estado.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStatusDescription" class="form-label">Descrição</label>
+                        <input type="text" class="form-control" id="editStatusDescription" name="description" required>
+                        <div class="invalid-feedback">Por favor introduza uma descrição válida.</div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="hidden" name="final" value="0">
+                        <input class="form-check-input" type="checkbox" value="1" id="editStatusFinal" name="final">
+                        <label class="form-check-label" for="editStatusFinal">
+                            Pode concluir tarefas?
+                        </label>
+                    </div>
+                    <div id="editStatusError" class="alert alert-danger d-none"></div>
+                    <div id="editStatusSuccess" class="alert alert-success d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Guardar alterações</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -127,6 +167,11 @@ $statuses = $status->read(true, true, false);
     </div>
 </div>
 
+<?php
+include '../../layout/footer.php';
+include  '../../error/flash-messages.php';
+?>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var confirmDeleteModal = document.getElementById('confirmDeleteModal');
@@ -136,12 +181,76 @@ $statuses = $status->read(true, true, false);
             document.getElementById('deleteStatusId').value = statusId;
         });
     });
-</script>
 
-<?php
-include '../../layout/footer.php';
-include  '../../error/flash-messages.php';
-?>
+    function openEditStatusModal(statusId) {
+        $('#editStatusError').addClass('d-none').text('');
+        $('#editStatusSuccess').addClass('d-none').text('');
+        $.ajax({
+            url: 'get-status.php',
+            type: 'POST',
+            data: { status_id: statusId },
+            dataType: 'json',
+            success: function(response) {
+                if (response.type === 'success') {
+                    const status = response.data;
+                    $('#editStatusId').val(status.id);
+                    $('#editStatusName').val(status.name);
+                    $('#editStatusDescription').val(status.description);
+                    $('#editStatusFinal').prop('checked', status.final == 1);
+                    $('#editStatusModal').modal('show');
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function() {
+                alert('Failed to load status details.');
+            }
+        });
+    }
+
+    $('#editStatusForm').on('submit', function(e) {
+        e.preventDefault();
+        $('#editStatusError').addClass('d-none').text('');
+        $('#editStatusSuccess').addClass('d-none').text('');
+        $.ajax({
+            url: 'edit-status.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.type === 'success') {
+                    $('#editStatusSuccess').removeClass('d-none').text(response.message);
+                    setTimeout(function() {
+                        const row = $('tr').filter(function() {
+                            return $(this).find('button[onclick="openEditStatusModal(' + $('#editStatusId').val() + ')"]').length > 0;
+                        });
+                        if (row.length) {
+                            // Update name
+                            row.find('td').eq(0).html(
+                                $('<div>').append(
+                                    $('<span>').text($('#editStatusName').val()),
+                                    $('#editStatusFinal').is(':checked') ? ' <span class="badge bg-danger ms-2">Final</span>' : ''
+                                ).html()
+                            );
+                            row.find('td').eq(1).text($('#editStatusDescription').val());
+                        }
+                        $('#editStatusModal').modal('hide');
+                    }, 1000);
+                } else {
+                    $('#editStatusError').removeClass('d-none').text(response.message);
+                }
+            },
+            error: function(xhr) {
+                let msg = 'Falha ao atualizar o estado.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                $('#editStatusError').removeClass('d-none').text(msg);
+            }
+        });
+    });
+
+</script>
 
 </body>
 </html>
