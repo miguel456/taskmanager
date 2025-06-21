@@ -55,4 +55,13 @@ class Config
         return $this->loadedConfigs[0]['App'];
     }
 
+    public function getAny($key): array
+    {
+        if (!array_key_exists($key, $this->loadedConfigs[0])) {
+            throw new \InvalidArgumentException("Essa secção de configuração não existe.");
+        }
+
+        return $this->loadedConfigs[0][$key];
+    }
+
 }
