@@ -12,6 +12,8 @@
       <sourceFolder url="file://$MODULE_DIR$/Core/Exceptions" isTestSource="false" packagePrefix="App\Core\Exceptions\" />
       <sourceFolder url="file://$MODULE_DIR$/Core/Traits" isTestSource="false" packagePrefix="App\Core\Traits\" />
       <sourceFolder url="file://$MODULE_DIR$/Core/Utilities" isTestSource="false" packagePrefix="App\Core\Utilities\" />
+      <sourceFolder url="file://$MODULE_DIR$/Core/Mail" isTestSource="false" packagePrefix="App\Core\Mail\" />
+      <sourceFolder url="file://$MODULE_DIR$/Core/Mail/Drivers" isTestSource="false" packagePrefix="App\Core\Mail\Drivers\" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-mbstring" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/var-dumper" />

@@ -222,9 +222,10 @@ class TaskStatus
         $qry = $conn->prepare('SELECT * FROM task_status WHERE final = 1');
 
         $qry->execute();
+        $result = $qry->fetch(PDO::FETCH_ASSOC);
 
-        if (!empty($qry->fetch(PDO::FETCH_ASSOC))) {
-            return $qry->fetch(PDO::FETCH_ASSOC);
+        if (!empty($result)) {
+            return $result;
         }
 
         return [];
