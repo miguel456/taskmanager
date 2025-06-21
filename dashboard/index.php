@@ -1,10 +1,97 @@
 <?php
 
 use App\Models\History;
+use App\Models\Projects\Project;
+use App\Models\Tasks\Tasks\Task;
+use App\Models\TaskStatus\TaskStatus;
 
 require_once realpath(__DIR__ . '/../app/bootstrap.php');
 
 $history = History::all();
+
+$task = new Task();
+$tasks = $task->read();
+
+$taskStatus = new TaskStatus();
+$taskStatuses = $taskStatus->read(0, true, false);
+
+$projects = new Project();
+
+$completingTaskStatus = $taskStatus->getFinalStatus();
+
+// contagens dos widgets do dashboard
+$totalTasks = count($tasks);
+$totalComplete = 0;
+$totalOverdue = 0;
+$totalActiveProjects = count($projects->get_project(0, true));
+
+foreach ($tasks as $task) {
+    if ($task['task_status_id'] == $completingTaskStatus['id']) {
+        $totalComplete++;
+    }
+
+    if (isset($task['due_date']) && (new DateTime($task['due_date'])) < new DateTime() && $task['task_status_id'] != $completingTaskStatus['id']) {
+        $totalOverdue++;
+    }
+}
+
+$statusCounts = [];
+foreach ($taskStatuses as $status) {
+
+    $statusName = $status['name'];
+    $statusId = $status['id'];
+    $statusCounts[$statusName] = 0;
+
+    foreach ($tasks as $task) {
+        if ($task['task_status_id'] == $statusId) {
+            $statusCounts[$statusName]++;
+        }
+    }
+}
+
+$tasksByDay = [
+    'Mon' => 0,
+    'Tue' => 0,
+    'Wed' => 0,
+    'Thu' => 0,
+    'Fri' => 0,
+    'Sat' => 0,
+    'Sun' => 0,
+];
+
+$completedTasksByDay = [
+    'Mon' => 0,
+    'Tue' => 0,
+    'Wed' => 0,
+    'Thu' => 0,
+    'Fri' => 0,
+    'Sat' => 0,
+    'Sun' => 0,
+];
+
+foreach ($tasks as $task) {
+    if (!empty($task['created_at'])) {
+        $date = new DateTime($task['created_at']);
+        $day = $date->format('D'); // Mon, Tue, etc.
+        if (isset($tasksByDay[$day])) {
+            $tasksByDay[$day]++;
+        }
+    }
+
+    if (
+        isset($task['task_status_id'], $task['updated_at']) &&
+        $task['task_status_id'] == $completingTaskStatus['id']
+    ) {
+        $date = new DateTime($task['updated_at']);
+        $day = $date->format('D');
+        if (isset($completedTasksByDay[$day])) {
+            $completedTasksByDay[$day]++;
+        }
+    }
+
+}
+
+
 
 ?>
 <!DOCTYPE html>
@@ -28,9 +115,8 @@ $history = History::all();
                         <i class="fas fa-tasks fa-2x text-primary"></i>
                     </div>
                     <div>
-                        <h6 class="mb-0">Total Tasks</h6>
-                        <h3 class="fw-bold mb-0" id="totalTasks">--</h3>
-                        <!-- Provide: total number of tasks -->
+                        <h6 class="mb-0">Tarefas totais</h6>
+                        <h3 class="fw-bold mb-0" id="totalTasks"><?= $totalTasks ?></h3>
                     </div>
                 </div>
             </div>
@@ -42,9 +128,8 @@ $history = History::all();
                         <i class="fas fa-check-circle fa-2x text-success"></i>
                     </div>
                     <div>
-                        <h6 class="mb-0">Completed</h6>
-                        <h3 class="fw-bold mb-0" id="completedTasks">--</h3>
-                        <!-- Provide: number of completed tasks -->
+                        <h6 class="mb-0">Terminadas</h6>
+                        <h3 class="fw-bold mb-0" id="completedTasks"><?= $totalComplete ?></h3>
                     </div>
                 </div>
             </div>
@@ -56,9 +141,8 @@ $history = History::all();
                         <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
                     </div>
                     <div>
-                        <h6 class="mb-0">Overdue</h6>
-                        <h3 class="fw-bold mb-0" id="overdueTasks">--</h3>
-                        <!-- Provide: number of overdue tasks -->
+                        <h6 class="mb-0">Atrasadas</h6>
+                        <h3 class="fw-bold mb-0" id="overdueTasks"><?= $totalOverdue ?></h3>
                     </div>
                 </div>
             </div>
@@ -71,8 +155,7 @@ $history = History::all();
                     </div>
                     <div>
                         <h6 class="mb-0">Active Projects</h6>
-                        <h3 class="fw-bold mb-0" id="activeProjects">--</h3>
-                        <!-- Provide: number of active projects -->
+                        <h3 class="fw-bold mb-0" id="activeProjects"><?= $totalActiveProjects ?></h3>
                     </div>
                 </div>
             </div>
@@ -84,7 +167,7 @@ $history = History::all();
         <div class="col-md-4 d-flex justify-content-center">
             <div class="card shadow-sm border-0 h-100 w-100">
                 <div class="card-header bg-white">
-                    <i class="fas fa-chart-pie me-2"></i>Task Status Distribution
+                    <i class="fas fa-chart-pie me-2"></i>Distribuição dos estados das tarefas
                 </div>
                 <div class="card-body">
                     <canvas id="statusPieChart" height="220"></canvas>
@@ -162,15 +245,13 @@ include '../layout/footer.php';
 include '../error/flash-messages.php';
 ?>
 
-<!-- Chart.js for charts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Example data for charts (replace with PHP variables)
     const statusData = {
-        labels: ['To Do', 'In Progress', 'Done'],
+        labels: <?= json_encode(array_keys($statusCounts)) ?>,
         datasets: [{
-            data: [10, 7, 15], // Provide: counts for each status
-            backgroundColor: ['#0d6efd', '#ffc107', '#198754'],
+            data: <?= json_encode(array_values($statusCounts)) ?>,
+            backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#6c757d', '#fd7e14', '#20c997'],
         }]
     };
     const statusPieChart = new Chart(document.getElementById('statusPieChart'), {
@@ -180,18 +261,18 @@ include '../error/flash-messages.php';
     });
 
     const tasksLineData = {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], // Provide: days or dates
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         datasets: [
             {
                 label: 'Created',
-                data: [2, 4, 3, 5, 2, 1, 0], // Provide: tasks created per day
+                data: <?= json_encode(array_values($tasksByDay)) ?>,
                 borderColor: '#0d6efd',
                 backgroundColor: 'rgba(13,110,253,0.1)',
                 tension: 0.4,
             },
             {
                 label: 'Completed',
-                data: [1, 2, 2, 3, 1, 0, 1], // Provide: tasks completed per day
+                data: <?= json_encode(array_values($completedTasksByDay)) ?>,
                 borderColor: '#198754',
                 backgroundColor: 'rgba(25,135,84,0.1)',
                 tension: 0.4,
@@ -201,7 +282,7 @@ include '../error/flash-messages.php';
     const tasksLineChart = new Chart(document.getElementById('tasksLineChart'), {
         type: 'line',
         data: tasksLineData,
-        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        options: { responsive: true, plugins: { legend: { position: 'bottom' }, scales: { y: { beginAtZero: true, ticks: { precision: 0, stepSize: 1 }} } } }
     });
 </script>
 </body>
