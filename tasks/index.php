@@ -23,6 +23,8 @@ $activeProject = $projectModel->getActiveProject();
 $tasks = $taskModel->read();
 $users = $userModel->getAllUsers(true);
 
+$hasFinishingStatus = $status->finalExists();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,6 +34,16 @@ $users = $userModel->getAllUsers(true);
 <div class="main-content">
     <div class="container my-4">
         <?php include_once '../layout/project-status-bar.php' ?>
+
+        <?php if (!$hasFinishingStatus && !empty($statuses)): ?>
+            <div class="alert alert-warning d-flex align-items-center mb-4 shadow-sm no-finishing-status" role="alert" style="border-left: 5px solid #ffc107;">
+                <i class="fas fa-exclamation-triangle fa-2x me-3 text-warning"></i>
+                <div>
+                    <h5 class="mb-1 fw-bold">Atenção: Nenhum estado final configurado</h5>
+                    <p class="mb-0">Atualmente, não existe nenhum estado de tarefa que permita marcar tarefas como concluídas. Para poder finalizar tarefas, crie ou edite um estado e ative a opção <b>“Pode concluir tarefas?”</b>.</p>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <!-- Filter Controls -->
         <div class="card mb-4 shadow-sm p-3">
@@ -86,13 +98,13 @@ $users = $userModel->getAllUsers(true);
                             <thead class="table-light">
                             <tr>
                                 <th></th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Project</th>
-                                <th>Status</th>
-                                <th>Due Date</th>
-                                <th>Priority</th>
-                                <th>Actions</th>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Projeto</th>
+                                <th>Estado</th>
+                                <th>Dt. limite</th>
+                                <th>Prioridade</th>
+                                <th>Ações</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -116,10 +128,14 @@ $users = $userModel->getAllUsers(true);
                                     </span>
                                     </td>
                                     <td>
-                                        <form action="complete-task.php" method="POST" class="d-inline">
-                                            <input type="hidden" name="taskId" value="<?= $task['id'] ?>">
-                                            <button class="btn btn-success btn-sm btn-complete" type="submit" title="Terminar tarefa"><i class="fa-solid fa-circle-check"></i></button>
-                                        </form>
+                                        <?php if($hasFinishingStatus): ?>
+                                            <form action="complete-task.php" method="POST" class="d-inline">
+                                                <input type="hidden" name="taskId" value="<?= $task['id'] ?>">
+                                                <button class="btn btn-success btn-sm btn-complete" type="submit" title="Terminar tarefa"><i class="fa-solid fa-circle-check"></i></button>
+                                            </form>
+                                        <?php else: ?>
+                                            <button data-tippy-content="Adicione um estado válido para concluir esta tarefa!" class="btn btn-success btn-sm btn-complete" type="submit" title="Terminar tarefa" disabled><i class="fa-solid fa-circle-check"></i></button>
+                                        <?php endif; ?>
                                         <button class="btn btn-info btn-sm open-details-panel" type="button" title="Detalhes" data-task-id="<?= $task['id'] ?>">
                                             <i class="fa-solid fa-eye"></i>
                                         </button>
@@ -333,20 +349,25 @@ include '../error/flash-messages.php';
 
 
 <script>
-    tippy('.btn-complete', {
-        content: 'Terminar tarefa',
-    });
+    document.addEventListener('DOMContentLoaded', function () {
+        tippy('.btn-complete', {
+            content: 'Terminar tarefa',
+        });
 
-    tippy('.open-details-panel', {
-        content: 'Ver mais detalhes',
-    });
+        tippy('.open-details-panel', {
+            content: 'Ver mais detalhes',
+        });
 
-    <?php foreach ($tasks as $task): ?>
+        tippy('[data-tippy-content]');
+
+        <?php foreach ($tasks as $task): ?>
         tippy('#taskOwnerProfileId<?= $task['rel']['task_owner']['iduser'] ?>', {
             content: '<?= $task['rel']['task_owner']['nome'] ?>'
         });
-    <?php endforeach; ?>
+        <?php endforeach; ?>
+    });
 </script>
+
 
 </body>
 </html>
