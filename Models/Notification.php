@@ -352,8 +352,17 @@ class Notification
                 $fields[$field] = $this->$field;
             }
         }
+
+        if (isset($fields['mailable'])) {
+            $fields['mailable'] = (int) $fields['mailable'];
+        }
+
+        if (isset($fields['sent'])) {
+            $fields['sent'] = (int) $fields['sent'];
+        }
+
         $fields['updated_at'] = $this->getUpdatedAt();
-        return DataLayer::updateTableData('notifications', ['id' => $this->getId()], array_merge($this->fillable, ['updated_at']), $fields);
+        return DataLayer::updateTableData('notifications', ['id', $this->getId()], array_merge($this->fillable, ['updated_at']), $fields);
     }
 
     public function delete(): bool
