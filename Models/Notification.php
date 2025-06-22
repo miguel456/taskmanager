@@ -8,13 +8,18 @@ use DateTime;
 use Exception;
 use PDO;
 
-class Notifications
+class Notification
 {
     private ?int $id;
     private string $content;
     private int $notifyee;
     private bool $mailable;
     private string $status;
+
+    private ?int $task = null;
+    private bool $sent = false;
+    private ?DateTime $sentAt = null;
+    private ?DateTime $scheduledAt = null;
     private DateTime $createdAt;
     private DateTime $updatedAt;
 
@@ -24,7 +29,11 @@ class Notifications
         'content',
         'notifyee',
         'mailable',
-        'status'
+        'status',
+        'task',
+        'sent',
+        'sent_at',
+        'scheduled_at'
     ];
 
     protected array $dirty = [];
@@ -39,12 +48,20 @@ class Notifications
         string $content,
         int $notifyee,
         bool $mailable = false,
-        string $status = 'UNREAD'
+        string $status = 'UNREAD',
+        ?int $task = null,
+        bool $sent = false,
+        ?DateTime $sentAt = null,
+        ?DateTime $scheduledAt = null
     ) {
         $this->setContent($content);
         $this->setNotifyee($notifyee);
         $this->setMailable($mailable);
         $this->setStatus($status);
+        $this->setTask($task);
+        $this->setSent($sent);
+        $this->setSentAt($sentAt);
+        $this->setScheduledAt($scheduledAt);
         $now = new DateTime();
         $this->setCreatedAt($now);
         $this->setUpdatedAt($now);
@@ -59,10 +76,10 @@ class Notifications
     }
 
     public function getId(): ?int { return $this->id; }
-    protected function setId(int $id): Notifications { $this->id = $id; return $this; }
+    protected function setId(int $id): Notification { $this->id = $id; return $this; }
 
     public function getContent(): string { return base64_decode($this->content); }
-    public function setContent(string $content): Notifications {
+    public function setContent(string $content): Notification {
         if (empty(trim($content))) {
             throw new \InvalidArgumentException('Conteúdo não pode estar vazio.');
         }
@@ -72,7 +89,7 @@ class Notifications
     }
 
     public function getNotifyee(): int { return $this->notifyee; }
-    public function setNotifyee(int $notifyee): Notifications {
+    public function setNotifyee(int $notifyee): Notification {
         if ($notifyee <= 0) {
             throw new \InvalidArgumentException('Invalid notifyee user ID.');
         }
@@ -82,14 +99,14 @@ class Notifications
     }
 
     public function isMailable(): bool { return $this->mailable; }
-    public function setMailable(bool $mailable): Notifications {
+    public function setMailable(bool $mailable): Notification {
         $this->mailable = $mailable;
         $this->setDirty('mailable');
         return $this;
     }
 
     public function getStatus(): string { return $this->status; }
-    public function setStatus(string $status): Notifications {
+    public function setStatus(string $status): Notification {
         if (!in_array($status, self::STATUSES)) {
             throw new \InvalidArgumentException('Invalid status.');
         }
@@ -99,20 +116,53 @@ class Notifications
     }
 
     public function getCreatedAt(): DateTime { return $this->createdAt; }
-    public function setCreatedAt(DateTime $createdAt): Notifications {
+    public function setCreatedAt(DateTime $createdAt): Notification {
         $this->createdAt = $createdAt;
         return $this;
     }
 
     public function getUpdatedAt(): string { return $this->updatedAt->format('Y-m-d H:i:s'); }
-    public function setUpdatedAt(DateTime $updatedAt): Notifications {
+    public function setUpdatedAt(DateTime $updatedAt): Notification {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    // Add getters and setters
+    public function getTask(): ?int { return $this->task; }
+    public function setTask(?int $task): Notification {
+        $this->task = $task;
+        $this->setDirty('task');
+        return $this;
+    }
+
+    public function isSent(): bool { return $this->sent; }
+    public function setSent(bool $sent): Notification {
+        $this->sent = $sent;
+        $this->setDirty('sent');
+        return $this;
+    }
+
+    public function getSentAt(): ?string {
+        return $this->sentAt?->format('Y-m-d H:i:s');
+    }
+    public function setSentAt(?DateTime $sentAt): Notification {
+        $this->sentAt = $sentAt;
+        $this->setDirty('sent_at');
+        return $this;
+    }
+
+    public function getScheduledAt(): ?string {
+        return $this->scheduledAt?->format('Y-m-d H:i:s');
+    }
+    public function setScheduledAt(?DateTime $scheduledAt): Notification {
+        $this->scheduledAt = $scheduledAt;
+        $this->setDirty('scheduled_at');
         return $this;
     }
 
     protected function getForeignNotifyee(): array
     {
-        return (new User())->getUserById($this->getNotifyee());
+        return new User()->getUserById($this->getNotifyee());
     }
 
     public function __get(string $name)
@@ -127,13 +177,17 @@ class Notifications
         return null;
     }
 
-    private static function create($payload): Notifications
+    private static function create($payload): Notification
     {
-        $notification = new Notifications(
+        $notification = new Notification(
             $payload['content'],
             $payload['notifyee'],
             (bool)$payload['mailable'],
-            $payload['status']
+            $payload['status'],
+            $payload['task'] ?? null,
+            (bool) ($payload['sent'] ?? false),
+            isset($payload['sent_at']) ? DateTime::createFromFormat("Y-m-d H:i:s", $payload['sent_at']) : null,
+            isset($payload['scheduled_at']) ? DateTime::createFromFormat("Y-m-d H:i:s", $payload['scheduled_at']) : null
         );
         if (isset($payload['created_at'])) {
             $notification->setCreatedAt(DateTime::createFromFormat("Y-m-d H:i:s", $payload['created_at']));
@@ -169,13 +223,17 @@ class Notifications
     public function save(): bool
     {
         $stmt = $this->conn->prepare(
-            'INSERT INTO notifications (content, notifyee, mailable, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+            'INSERT INTO notifications (content, notifyee, mailable, status, task, sent, sent_at, scheduled_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $status = $stmt->execute([
             $this->getContent(),
             $this->getNotifyee(),
             $this->isMailable(),
             $this->getStatus(),
+            $this->getTask(),
+            $this->isSent(),
+            $this->getSentAt(),
+            $this->getScheduledAt(),
             $this->getCreatedAt()->format('Y-m-d H:i:s'),
             $this->getUpdatedAt()
         ]);
@@ -190,10 +248,10 @@ class Notifications
     /**
      * Tenta encontrar a notificação ou dá erro
      * @param int $id
-     * @return Notifications
+     * @return Notification
      * @throws Exception
      */
-    public static function findByIdOrFail(int $id): Notifications
+    public static function findByIdOrFail(int $id): Notification
     {
         $conn = DataLayer::getConnection();
         $stmt = $conn->prepare('SELECT * FROM notifications WHERE id = ?');
