@@ -2,7 +2,13 @@
 
 require_once realpath(__DIR__ . '/../vendor/autoload.php');
 
-$tasks = new \App\Models\Tasks\Tasks\Task();
+use App\Models\Tasks\Tasks\Task;
+
+$tasks = new Task()->read();
+
+if (php_sapi_name() !== 'cli' && !is_logged_in()) {
+    response('/error/access-denied.html');
+}
 
 foreach($tasks as $task) {
     $dueDate = new \DateTime($task['due_date']);
@@ -12,7 +18,7 @@ foreach($tasks as $task) {
 
     $taskName = $task['task_name'];
 
-    if ($dueDate > $today) {
+    if ($today > $dueDate) {
         $service->setTitle('Tarefas em atraso')
             ->setMessage("Uma das suas tarefas está em atraso. Marque-a como concluída ou altere a data limite de conclusão ($taskName).")
             ->setDismissable(true)
@@ -27,6 +33,6 @@ if (php_sapi_name() == 'cli') {
     return 0;
 }
 else {
-    http_send_status(201);
+    header('HTTP/1.1 201 No Content');
     return;
 }

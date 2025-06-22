@@ -25,7 +25,8 @@
         "App\\Core\\Traits\\": "Core/Traits",
         "App\\Core\\Utilities\\": "Core/Utilities",
         "App\\Core\\Mail\\": "Core/Mail",
-        "App\\Core\\Mail\\Drivers\\": "Core/Mail/Drivers"
+        "App\\Core\\Mail\\Drivers\\": "Core/Mail/Drivers",
+        "App\\Core\\Services\\": "Core/Services"
       },
       "files": [
           "auth/common.php",

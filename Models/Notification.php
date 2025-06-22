@@ -228,10 +228,10 @@ class Notification
         $status = $stmt->execute([
             $this->getContent(),
             $this->getNotifyee(),
-            $this->isMailable(),
+            (int) $this->isMailable(),
             $this->getStatus(),
             $this->getTask(),
-            $this->isSent(),
+            (int) $this->isSent(),
             $this->getSentAt(),
             $this->getScheduledAt(),
             $this->getCreatedAt()->format('Y-m-d H:i:s'),
@@ -321,6 +321,17 @@ class Notification
         $res = $qry->fetchAll(PDO::FETCH_ASSOC);
 
         return !empty($res);
+    }
+
+    /**
+     * Função de utilidade para marcar uma notificação como lida.
+     * @param Notification $notification
+     * @return bool Resultado da operação.
+     * @throws Exception
+     */
+    public static function markRead(Notification $notification): bool
+    {
+        return $notification->setStatus('READ')->update();
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Core\Services;
 use App\Core\Mail\Mailer;
 use App\Core\Spec\MailerDriver;
 use App\Models\Notification;
+use App\Models\Tasks\Tasks\Task;
 use App\Models\Users\User;
 
 /**
@@ -154,12 +155,12 @@ class NotificationService
      * Decide o driver a utilizar com base na configuração fornecida.
      * @return void
      */
-    public function decideDriver(): void
+    protected function decideDriver(): void
     {
-        $driverConfig = config('Mail');
+        $driver = config('Driver', 'mail');
 
-        if (is_array($driverConfig) && class_exists($driverConfig['Driver'])) {
-            $this->robustMailer = new Mailer(new $driverConfig['Driver']);
+        if (class_exists($driver)) {
+            $this->robustMailer = new Mailer(new $driver);
         } else {
             throw new \LogicException('Driver ou configuração inválida. Verifique a configuração app.ini e forneça um Driver::class válido');
         }
@@ -186,12 +187,20 @@ class NotificationService
             ]
         ];
 
-        if ($forTask && !Notification::isTaskNotified($taskId)) {
-            $notif = new Notification(json_encode($notificationContent), $this->user['iduser'], $this->isMailable(), 'UNREAD', $taskId)->save();
-        } else {
-            $notif = new Notification(json_encode($notificationContent), $this->user['iduser'], $this->isMailable())->save();
+        // Como esta operação é idempotente, temos de verificar se já existe uma notificação antes de a tentar introduzir
+        if ($forTask && Notification::isTaskNotified($taskId)) {
+            return false;
         }
 
+        if ($forTask) {
+
+            return new Notification(json_encode($notificationContent), $this->user['iduser'], $this->isMailable(), 'UNREAD', $taskId)->save();
+
+        } else {
+
+            $notif = new Notification(json_encode($notificationContent), $this->user['iduser'], $this->isMailable())->save();
+
+        }
 
         if ($notif) {
             if ($this->isMailable()) {

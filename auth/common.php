@@ -256,9 +256,13 @@ function resolvePageTitle(string $path): string
  * @param string $key O elemento a devolver.
  * @return string O elemento da configuração
  */
-function config(string $key): string
+function config(string $key, $type = 'app'): string
 {
-    return new Config()->getAppConfig()[$key];
+    return match ($type) {
+        'app' => new Config()->getAppConfig()[$key],
+        'mail' => new Config()->getMailConfig()[$key],
+        'default' => []
+    };
 }
 
 /**

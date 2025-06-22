@@ -55,6 +55,11 @@ class Config
         return $this->loadedConfigs[0]['App'];
     }
 
+    public function getMailConfig(): array
+    {
+        return $this->loadedConfigs[0]['Mail'];
+    }
+
     public function getAny($key): array
     {
         if (!array_key_exists($key, $this->loadedConfigs[0])) {
