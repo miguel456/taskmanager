@@ -284,10 +284,11 @@ class Notification
     /**
      * Devolve todas as notificações de um utilizador.
      * @param int $iduser O ID a verificar
+     * @param bool $onlyUnread Se quer só notificações não lidas
      * @return array Array de objetos de notificação, ou, se não houver, array vazio
      * @throws Exception
      */
-    public static function allForUser(int $iduser)
+    public static function allForUser(int $iduser, bool $onlyUnread = true)
     {
         $conn = DataLayer::getConnection();
         $user = new User();
@@ -296,11 +297,16 @@ class Notification
             throw new Exception("Erro ao obter notificações: utilizador não existe.");
         }
 
-        $stmt = $conn->prepare('SELECT * FROM notifications WHERE notifyee = ?');
-        $res = $stmt->execute([$iduser]);
+        if ($onlyUnread) {
+            $stmt = $conn->prepare('SELECT * FROM notifications WHERE notifyee = ? AND status = ?');
+            $res = $stmt->execute([$iduser, 'UNREAD']);
+        } else {
+            $stmt = $conn->prepare('SELECT * FROM notifications WHERE notifyee = ?');
+            $res = $stmt->execute([$iduser]);
+        }
 
         if ($res) {
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return self::buildResponsePayload($stmt, $conn);
         } else {
             return [];
         }

@@ -60,6 +60,11 @@ class Config
         return $this->loadedConfigs[0]['Mail'];
     }
 
+    public function getCronConfig(): array
+    {
+        return $this->loadedConfigs[0]['Cron'];
+    }
+
     public function getAny($key): array
     {
         if (!array_key_exists($key, $this->loadedConfigs[0])) {

@@ -261,6 +261,7 @@ function config(string $key, $type = 'app'): string
     return match ($type) {
         'app' => new Config()->getAppConfig()[$key],
         'mail' => new Config()->getMailConfig()[$key],
+        'cron' => new Config()->getCronConfig()[$key],
         'default' => []
     };
 }

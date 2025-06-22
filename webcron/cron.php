@@ -6,8 +6,13 @@ use App\Models\Tasks\Tasks\Task;
 
 $tasks = new Task()->read();
 
-if (php_sapi_name() !== 'cli' && !is_logged_in()) {
-    response('/error/access-denied.html');
+$token = config('WebCronSecretToken', 'cron');
+
+if (php_sapi_name() !== 'cli') {
+    if (!isset($_GET['token']) || $_GET['token'] !== $token) {
+        http_response_code(403);
+        exit('Acesso negado. Token inválido.');
+    }
 }
 
 foreach($tasks as $task) {

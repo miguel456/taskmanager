@@ -7,6 +7,7 @@ if (!is_logged_in()) {
     die;
 }
 ?>
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark custom-navbar">
     <div class="container-fluid">
         <a class="navbar-brand" href="/dashboard/index.php"><i class="fas fa-fire"></i> TaskManager</a>
@@ -56,42 +57,7 @@ if (!is_logged_in()) {
                     </ul>
                 </li>
             </ul>
-            <div class="dropdown me-2">
-                <button class="btn btn-outline-light btn-sm position-relative" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-bell"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        3
-                    <span class="visually-hidden">unread notifications</span>
-                </span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notificationsDropdown" style="min-width: 300px;">
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="#">
-                            <i class="fas fa-tasks text-primary me-2"></i>
-                            Nova tarefa atribuída
-                            <span class="badge bg-secondary ms-auto">Just now</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="#">
-                            <i class="fas fa-flag text-success me-2"></i>
-                            Estado do projeto atualizado!
-                            <span class="badge bg-secondary ms-auto">5m ago</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="#">
-                            <i class="fas fa-user-plus text-warning me-2"></i>
-                            Novo membro juntou se ao projeto
-                            <span class="badge bg-secondary ms-auto">1h ago</span>
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item text-center" href="#">Ver todas as notificações</a>
-                    </li>
-                </ul>
-            </div>
+            <?php include_once __DIR__ . '/widgets/notification-bell.widget.php' ?>
             <div class="d-flex align-items-center gap-2">
                 <span class="btn btn-outline-light btn-sm user-btn mb-0" tabindex="-1" style="pointer-events: none;">
                     <i class="fas fa-user-circle"></i> <?php echo $username; ?>
