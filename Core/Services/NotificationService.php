@@ -89,11 +89,12 @@ class NotificationService
 
     /**
      * Define se esta notificação pode ser enviada como email
-     * @param bool $mailable
+     * @param NotificationService $mailable
      */
-    public function setMailable(bool $mailable): void
+    public function setMailable(bool $mailable): NotificationService
     {
         $this->mailable = $mailable;
+        return $this;
     }
 
 
@@ -171,7 +172,7 @@ class NotificationService
      * @return bool Resultado da operação
      * @throws \Exception
      */
-    public function notify(): bool
+    public function notify(bool $forTask = false, int $taskId = 0): bool
     {
         // algo que repete os dados já na tabela de notifs, mas pode ser útil para outros serviços de notifs no futuro
         $notificationContent = [
@@ -185,7 +186,12 @@ class NotificationService
             ]
         ];
 
-        $notif = new Notification(json_encode($notificationContent), $this->user['iduser'], $this->isMailable())->save();
+        if ($forTask && !Notification::isTaskNotified($taskId)) {
+            $notif = new Notification(json_encode($notificationContent), $this->user['iduser'], $this->isMailable(), 'UNREAD', $taskId)->save();
+        } else {
+            $notif = new Notification(json_encode($notificationContent), $this->user['iduser'], $this->isMailable())->save();
+        }
+
 
         if ($notif) {
             if ($this->isMailable()) {

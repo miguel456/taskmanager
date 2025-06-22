@@ -306,6 +306,26 @@ class Notification
         }
     }
 
+    /**
+     * Verifica se a tarefa já foi notificada, mantendo a idempotência
+     * @param int $taskId
+     * @return bool
+     */
+    public static function isTaskNotified(int $taskId): bool
+    {
+        $conn = DataLayer::getConnection();
+
+        $qry = $conn->prepare('SELECT * FROM notifications WHERE task = ? AND status = ?');
+        $qry->execute([$taskId, 'UNREAD']);
+
+        $res = $qry->fetchAll(PDO::FETCH_ASSOC);
+
+        return !empty($res);
+    }
+
+    /**
+     * @return bool Atualiza o modelo e guarda as alterações na DB.
+     */
     public function update(): bool
     {
         $this->setUpdatedAt(new DateTime());
