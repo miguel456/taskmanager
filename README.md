@@ -1,3 +1,14 @@
+## Project Archival Notice: although this is not marked as pre-release software, this project is effectively a university project and should not be used in production. Feel free to spin up a copy to get a look around, but don't expect it to work as nicely as a production-grade task management app. For instance, rolling your own authentication is a security anti-pattern, and that's what I did in this project (assignment requirements). PRs accepted but be aware that this repo will be archived soon.
+
+## Future support
+
+No security releases will be offered. No bugs will be patched. No more features will be developed. This project is now only for reference
+and archival purposes.
+
+-----------------
+
+**I might spin up my own proper task management project soon tho (without them pesky uni assignment constraints)! *
+
 # Projeto II PASSI - Aplicação de Gestão de Projetos e Tarefas em PHP
 
 ### Versão 1.0.0-release
